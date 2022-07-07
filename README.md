@@ -4,12 +4,12 @@ Main
 
 Process Definition (see pg. 5)
 
-FCFS
+FCFS - South
 
-SJF
+SJF - Jeda
 
-SRT
+SRT - Nathen
 
-RR
+RR - South
 
 Output File Generation (see pg. 8)
