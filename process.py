@@ -47,13 +47,14 @@ class Process:
         for i in range(500):
             print(next_exp(RNG, 0.01, 4096))
         '''
-        self.arrival =  math.floor(next_exp(RNG, lambdaNumb, upperBound )) #initialize arrival time
-        
-        
+        self.arrival =  math.floor(next_exp(lambdaNumb, upperBound )) #initialize arrival time
+        self.totalBurst = math.ceil(random.randrange(1,100)) #calculate total burst time uniform distribution
 
-        self.totalBursts = math.ceil(RNG.drand())*100 #calculate total burst time uniform distribution
-        self.CPUBurstTime = math.ceil(next_exp(RNG, lambdaNumb, upperBound)) #calculate CPU burst time with exponential distribution
-        self.IOBurstTime = math.ceil(next_exp(RNG, lambdaNumb, upperBound)) * 10 #calculate IO burst time with expoenential distribution
+        self.CPUlst = []
+        self.IOlst = []
+        for i in range(self.totalBurst):
+            self.CPUlst.append(math.ceil(next_exp(lambdaNumb, upperBound))) #calculate CPU burst time with exponential distribution
+            self.IOlst.append(math.ceil(next_exp(lambdaNumb, upperBound)) * 10 )#calculate IO burst time with expoenential distribution
         '''
 
 

@@ -26,6 +26,7 @@ if __name__ == "__main__":
 
     '''
     processes = 25
+    processes = 3
     lst = []
     random.seed(3)
     for i in range(processes):
@@ -33,6 +34,9 @@ if __name__ == "__main__":
 
     for i in range(processes):
         print(lst[i].arrival)
+       
+        print(lst[i].CPUlst)
+        print("bruh")
     '''       
         
     
