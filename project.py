@@ -6,18 +6,6 @@ import random
 import math
 from process import Process
 
-'''
-def next_exp(lambdaNumb,upperBound):
-        r = random.uniform(0.0,1.0)
-        x = -math.log(r)/lambdaNumb
-        while(1):
-            if(x > upperBound):
-                x = -math.log(r)/lambdaNumb
-            else: 
-                return x
-'''
-
-
 if __name__ == "__main__":
     '''
     if len(sys.argv) != 8:  #must be given exactly 8 args, else theres a problem...
@@ -32,6 +20,11 @@ if __name__ == "__main__":
         t_slice = sys.argv[1]   #timeslice used in RR
         '''
 
+    p = Process(0,0.01, 4096, 19)
+    #print("arrival: " + str(p.arrival))
+    #print("number of bursts: " + str(p.totalBursts))
+
+    '''
     processes = 25
     lst = []
     random.seed(3)
@@ -40,7 +33,7 @@ if __name__ == "__main__":
 
     for i in range(processes):
         print(lst[i].arrival)
-           
+    '''       
         
     
     
