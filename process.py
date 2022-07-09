@@ -20,8 +20,12 @@ class Process:
             print("invalid process ID") #if process ID number is larger than 25, it is invalid
         self.arrival =  math.floor(next_exp(lambdaNumb, upperBound )) #initialize arrival time
         self.totalBurst = math.ceil(random.randrange(1,100)) #calculate total burst time uniform distribution
-        self.CPUBurstTime = math.ceil(next_exp(lambdaNumb, upperBound)) #calculate CPU burst time with exponential distribution
-        self.IOBurstTime = math.ceil(next_exp(lambdaNumb, upperBound)) * 10 #calculate IO burst time with expoenential distribution
+
+        self.CPUlst = []
+        self.IOlst = []
+        for i in range(self.totalBurst):
+            self.CPUlst.append(math.ceil(next_exp(lambdaNumb, upperBound))) #calculate CPU burst time with exponential distribution
+            self.IOlst.append(math.ceil(next_exp(lambdaNumb, upperBound)) * 10 )#calculate IO burst time with expoenential distribution
 
 
 

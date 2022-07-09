@@ -32,14 +32,15 @@ if __name__ == "__main__":
         t_slice = sys.argv[1]   #timeslice used in RR
         '''
 
-    processes = 25
+    processes = 3
     lst = []
     random.seed(3)
     for i in range(processes):
         lst.append( Process(i,0.01, 3000))
 
     for i in range(processes):
-        print(lst[i].arrival)
+        print(lst[i].CPUlst)
+        print("bruh")
            
         
     
