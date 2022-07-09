@@ -5,18 +5,16 @@ import sys
 import random
 import numpy as np
 import math
-def next_exp(totalProc,seedNumb,lambdaNumb,upperBound):
-    minNumb = 
-    maxNumb = 
-    sums = 0
-    iterations = 10000000
-    for i in range(iterations):
+def next_exp(lambdaNumb,upperBound):
         r = random.uniform(0.0,1.0)
         x = -math.log(r)/lambdaNumb
-        if(x > upperBound):
-            i-=1
-            continue
-                
+        while(1):
+            if(x > upperBound):
+                x = -math.log(r)/lambdaNumb
+            else: 
+                return x
+
+
 
     
 
@@ -31,11 +29,7 @@ if __name__ == "__main__":
         t_cs = sys.argv[5]  #time it takes for a context switch
         alpha = sys.argv[6]     #represents alpha used during exponential averaging 
         t_slice = sys.argv[1]   #timeslice used in RR
-    print(next_exp(10))
-    print(next_exp(10))
-    print(next_exp(10))
-    print(next_exp(10))
-    print(next_exp(10))
+    
 
     
 
