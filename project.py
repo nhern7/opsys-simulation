@@ -4,7 +4,7 @@ This is the file that actually runs the simulation, by importing the scheduling 
 import sys
 import random
 import math
-from process import Process
+from process import Process, Rand48
 
 if __name__ == "__main__":
     '''
@@ -19,25 +19,14 @@ if __name__ == "__main__":
         alpha = sys.argv[6]     #represents alpha used during exponential averaging 
         t_slice = sys.argv[1]   #timeslice used in RR
         '''
-
-    p = Process(0,0.01, 4096, 19)
-    #print("arrival: " + str(p.arrival))
+    RNG = Rand48(19)
+    RNG.srand(19)
+    p = Process(0,0.01, 4096, RNG)
+    print("CPU bursts:", p.IOlst)
+    print("i")
     #print("number of bursts: " + str(p.totalBursts))
 
-    '''
-    processes = 25
-    processes = 3
-    lst = []
-    random.seed(3)
-    for i in range(processes):
-        lst.append( Process(i,0.01, 3000))
-
-    for i in range(processes):
-        print(lst[i].arrival)
-       
-        print(lst[i].CPUlst)
-        print("bruh")
-    '''       
+        
         
     
     
