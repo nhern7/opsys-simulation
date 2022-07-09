@@ -3,8 +3,10 @@ This is the file that actually runs the simulation, by importing the scheduling 
 '''
 import sys
 import random
-import numpy as np
 import math
+from process import Process
+
+'''
 def next_exp(lambdaNumb,upperBound):
         r = random.uniform(0.0,1.0)
         x = -math.log(r)/lambdaNumb
@@ -13,12 +15,11 @@ def next_exp(lambdaNumb,upperBound):
                 x = -math.log(r)/lambdaNumb
             else: 
                 return x
+'''
 
-
-
-    
 
 if __name__ == "__main__":
+    '''
     if len(sys.argv) != 8:  #must be given exactly 8 args, else theres a problem...
         print("we have problems")
     else:
@@ -29,8 +30,22 @@ if __name__ == "__main__":
         t_cs = sys.argv[5]  #time it takes for a context switch
         alpha = sys.argv[6]     #represents alpha used during exponential averaging 
         t_slice = sys.argv[1]   #timeslice used in RR
+        '''
+
+    processes = 25
+    lst = []
+    random.seed(3)
+    for i in range(processes):
+        lst.append( Process(i,0.01, 3000))
+
+    for i in range(processes):
+        print(lst[i].arrival)
+           
+        
+    
     
 
     
+
 
 
