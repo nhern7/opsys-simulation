@@ -2,10 +2,8 @@ import random
 import math
 
 class Rand48(object):
-    def __init__(self, seed):
-        self.n = seed
-    def seed(self, seed):
-        self.n = seed
+    def __init__(self):
+        self.n = 0
     def srand(self, seed):
         self.n = (seed << 16) + 0x330e
     def next(self):
@@ -13,15 +11,6 @@ class Rand48(object):
         return self.n
     def drand(self):
         return self.next() / 2**48
-    def lrand(self):
-        return self.next() >> 17
-    def mrand(self):
-        n = self.next() >> 16
-        if n & (1 << 31):
-            n -= 1 << 32
-        return n   
-
-
 
 def next_exp(number_gen, lambdaNumb,upperBound):
         r = number_gen.drand() #number gen is Rand48 object for 48 bit linear generator
@@ -32,7 +21,6 @@ def next_exp(number_gen, lambdaNumb,upperBound):
             else: 
                 return x
 
-
 class Process:
     
     def __init__(self, PrID, lambdaNumb, upperBound, RNG):
@@ -40,10 +28,7 @@ class Process:
         if(PrID < 26):
             self.name = chr(PrID+65) #Process number ID ASCII equivalent character
         else:
-            print("invalid process ID") #if process ID number is larger than 25, it is invalid
-        
-        
-        
+            print("invalid process ID") #if process ID number is larger than 25, it is invalid  
         
         self.arrival =  math.floor(next_exp(RNG,lambdaNumb, upperBound, )) #initialize arrival time
         self.totalBurst = math.ceil(RNG.drand()*100) #calculate total burst time uniform distribution
