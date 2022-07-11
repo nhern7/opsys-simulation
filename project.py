@@ -5,6 +5,7 @@ import sys
 import random
 import math
 from process import Process, Rand48
+from FCFS import FCFS
 
 if __name__ == "__main__":
     
@@ -27,6 +28,8 @@ if __name__ == "__main__":
             temp = Process(i, lamb, upper_bound, RNG)
             process_list.append(temp)
         print("just checking that this is 33 --> "+str(process_list[0].arrival))
+
+        FCFS(process_list)
 
         
         
