@@ -32,7 +32,7 @@ class Process:
         
         self.arrival =  math.floor(next_exp(RNG,lambdaNumb, upperBound, )) #initialize arrival time
         self.totalBurst = math.ceil(RNG.drand()*100) #calculate total burst time uniform distribution
-
+        self.tracker = 0
         self.CPUlst = []
         self.IOlst = []
         for i in range(self.totalBurst):
