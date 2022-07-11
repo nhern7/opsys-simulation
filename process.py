@@ -22,7 +22,7 @@ def next_exp(number_gen, lambdaNumb,upperBound):
                 return x
 
 def CPUguess(tau, actual_burst, alpha):
-    ret = alpha * actual_burst + (1-alpha) * tau
+    ret = (alpha * actual_burst) + ((1-alpha) * tau)
     return ret
 
 class Process:
@@ -47,16 +47,4 @@ class Process:
                 
         self.tau = 100 #the next guess for the process CPU burst time, using exponential averaging
         self.remaining = self.CPUlst[0] #the remaining time for the current CPU burst to finish
-    
-    def updateRemaining(elapsed_time):
-        self.remaining -= elapsed_time
-    
-    def processComplete():
-        '''
-        will call this when we complete a process during the simulation
-
-        - updates tau, total number of cpu bursts, CPUlst, remaining
-        - I/O stuff and readding to the ready queue, if necessary (DO THIS IN SIMULATION)
-        - output -> "Process _ terminated [current ready queue]" if necessary (DO THIS IN SIMULATION)
-        '''
 

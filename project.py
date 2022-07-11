@@ -4,6 +4,7 @@ This is the file that actually runs the simulation, by importing the scheduling 
 import sys
 import random
 import math
+import srt
 from process import Process, Rand48
 from FCFS import FCFS
 
@@ -27,16 +28,7 @@ if __name__ == "__main__":
         for i in range(n):
             temp = Process(i, lamb, upper_bound, RNG)
             process_list.append(temp)
-        print("just checking that this is 33 --> "+str(process_list[0].arrival))
-
-        FCFS(process_list)
-
+        #print("just checking that this is 5 --> "+str(process_list[7].arrival))
         
-        
-    
-    
-
-    
-
-
-
+       
+        srt.algorithm(process_list, alpha)
