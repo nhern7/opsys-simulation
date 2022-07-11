@@ -21,6 +21,10 @@ def next_exp(number_gen, lambdaNumb,upperBound):
             else: 
                 return x
 
+def CPUguess(tau, actual_burst, alpha):
+    ret = alpha * actual_burst + (1-alpha) * tau
+    return ret
+
 class Process:
     
     def __init__(self, PrID, lambdaNumb, upperBound, RNG):
@@ -31,17 +35,22 @@ class Process:
             print("invalid process ID") #if process ID number is larger than 25, it is invalid  
         
         self.arrival =  math.floor(next_exp(RNG,lambdaNumb, upperBound, )) #initialize arrival time
-        self.totalBurst = math.ceil(RNG.drand()*100) #calculate total burst time uniform distribution
+        self.numCPUBursts = math.ceil(RNG.drand()*100) #calculate total number of CPU bursts using uniform distribution
 
         self.CPUlst = []
         self.IOlst = []
-        for i in range(self.totalBurst):
+        for i in range(self.numCPUBursts):
             self.CPUlst.append(math.ceil(next_exp(RNG,lambdaNumb, upperBound))) #calculate CPU burst time with exponential distribution
-            self.IOlst.append(math.ceil(next_exp(RNG,lambdaNumb, upperBound)) * 10 )#calculate IO burst time with expoenential distribution
-        self.IOlst.pop() #take out the last number from the IOlst
-
-
-
+            if(i < self.numCPUBursts-1):
+                self.IOlst.append(math.ceil(next_exp(RNG,lambdaNumb, upperBound)) * 10 )#calculate IO burst time with expoenential distribution
+        self.tau = 100 #the next guess for the process CPU burst time, using exponential averaging
     
+    def processComplete():
+        '''
+        will call this when we complete a process during the simulation
 
+        1) updates tau and total number of cpu bursts
+        2) I/O stuff and readding to the ready queue, if necessary (DO THIS IN SIMULATION)
+        3) output -> "Process _ terminated [current ready queue]" if necessary (DO THIS IN SIMULATION)
+        '''
 
