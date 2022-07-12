@@ -1,33 +1,38 @@
+import process
+import math 
+
 ' SHORTEST JOB FIRST '
-'''
-pid   CPU burst times
-   P1      18 ms
-   P2       3 ms
-   P3       4 ms
 
-  ready queue is ordered: P2 P3 P1    (priority queue)
+def sjf(processes, file):
+    queue = []
+    io_proccess = []
+    terminated = []
+    running = []
+    processes.sort(key = lambda x : x.numCPUBursts)
+    count = 0
+    current_queue = []
+    elapsedTime = 0
+    print("time 0ms: Simulator started for SJF [Q: empty]")
+    while True:
+        if (elapsedTime == processes[count].arrival):
+            queue.append(processes[count])
+            current_queue.append(processes[count].name)
+            print("time {}ms: Process {} (tau {}ms) arrived; added to ready queue [Q:{}]".format(elapsedTime, processes[count].name, processes[count].tau, processes[count].name))
+            elapsedTime+=queue[-1].arrival
 
- (assume that all processes arrive in the ready queue at time 0)
+        if (len(running)==0 and len(queue)!=0):
+            running.append(processes[count])
 
-    context switches           context switch
-       v   v    v                  v
-       +---+----+------------------+------------------->
-  SJF: |P2 | P3 | P1               | .................
-       +---+----+------------------+------------------->
-    t: 0   3    7                  25
+        elapsedTime+=1
 
+    print("time {}ms: Simulator ended for SJF [Q: empty]".format(elapsedTime))
 
-  P1 has 7 ms wait time      P1 has 25 ms turnaround time
-  P2 has 0 wait time         P2 has 3 ms turnaround time
-  P3 has 3 ms wait time      P3 has 7 ms turnaround time
-'''
-
-
-def sjf(processlist, simout):
     '''
-    
+    file.write('Algorithm SJF\n')
+    file.write(f'-- average CPU burst time: ms\n')
+    file.write(f'-- average wait time: ms\n')
+    file.write(f'-- average turnaround time: ms\n')
+    file.write(f'-- total number of context switches: \n')
+    file.write(f'-- total number of preemptions: 0\n')
+    file.write(f'-- CPU utilization: \n')
     '''
-
-
-if __name__ == "__main__":
-    print()
