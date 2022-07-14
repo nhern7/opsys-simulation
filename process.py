@@ -38,6 +38,8 @@ class Process:
 
         self.CPUlst = []
         self.IOlst = []
+        self.burst_arrival = 0 #record the arrival time of the current burst
+        self.burst_wait_list = [] #keep track of the wait time for all the bursts
         for i in range(self.numCPUBursts):
             if i == self.numCPUBursts-1:
                 self.CPUlst.append(math.ceil(next_exp(RNG,lambdaNumb, upperBound))) #calculate CPU burst time with exponential distribution            
