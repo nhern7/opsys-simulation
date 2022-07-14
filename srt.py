@@ -1,29 +1,13 @@
-'''
-parts to do:
-
-1. algorithm
-2. measurements
-3. output
-
-SRT notes:
-- basically sjf but with preemption
-
-- processes are stored in the ready queue in order of smallest (shortest) predicted CPU burst time
-to largest (longest)
-
-- we need to know arrival times in order to preempt
-
-- at least 1 unit of time must pass before considering preempting the current process
-
-- upon entering ready queue, check if a process has a predicted CPU burst time < the remaining
-predicted time of the currently running process. if so, a preemption occurs
-
-- when a preemption occurs, the currently running process is added back to the ready queue.
-'''
-
 import heapq
 import process
 import math 
+
+average_CPU_burst = 0
+average_wait_time = 0
+average_turnaround_time = 0
+total_context_switches = 0
+total_preemptions = 0 #come back to me!
+utilization = 0
 
 def checkFinished(process_list, terminated_processes, current_time):
     if len(terminated_processes) == 0:
@@ -39,7 +23,7 @@ def checkFinished(process_list, terminated_processes, current_time):
 
     return True
 
-def getQueueFormatted(ready_queue_formatted, ):
+def getQueueFormatted(ready_queue_formatted):
     ret = ""
     for i in ready_queue_formatted:
         ret += " " + i.name
@@ -47,18 +31,7 @@ def getQueueFormatted(ready_queue_formatted, ):
         ret = " empty"
     return ret
 
-def algorithm(process_list, alpha):
-    '''
-    have to use *predicted values* for sorting, 
-    as they don't know how long a CPU burst will actually be. 
-
-    this predicted value is the ending time, which is start time + tau
-
-    remember ties are settled by alphaetical order
-
-    everytime something is pushed to the queue, we should first check if it has a predicted
-    CPU burst time that is < the remaining CPU burst time of the process curretly running
-    '''
+def algorithm(process_list, alpha, t_cs):
     print("time 0ms: Simulator started for SRT [Q: empty]")
     ready_queue = []
     IO_processes = [] #keep track of all the processes currently performing IO
@@ -69,9 +42,14 @@ def algorithm(process_list, alpha):
     process_list_copy = list(process_list)
     time = 0
     time_added = 0
+    total_CPU_burst_time = 0
+    total_CPU_burst_count = 0
+    total_wait_time = 0
+    total_turnaround_time = 0
     running_CPU_original = 0 #the original CPU burst time (without any runtime being elasped) of the currently running process
 
     while(not checkFinished(process_list_copy, terminated_processes, time)):
+        #HAVE TO CHANGE HOW CONTEXT SWITCH TIME IS USED
         if time == 102:
             print()
         if len(running) == 1: 
@@ -79,15 +57,11 @@ def algorithm(process_list, alpha):
             if running[0][-1].CPUlst[0] == 0 and running[0][-1].numCPUBursts > 1:
                 running[0][-1].numCPUBursts -= 1
                 running[0][-1].CPUlst.pop(0)
-
-                '''
-                - I/O stuff and readding to the ready queue, if necessary (DO THIS IN SIMULATION)
-                - output -> "Process _ terminated [current ready queue]" if necessary (DO THIS IN SIMULATION)
-                '''
                 if running[0][-1].numCPUBursts == 1:
                     print("time {}ms: Process {} (tau {}ms) completed a CPU burst; {} burst to go [Q:{}]".format(time, running[0][-1].name, running[0][-1].tau, running[0][-1].numCPUBursts, getQueueFormatted(ready_queue_formatted)))
                 else:
                     print("time {}ms: Process {} (tau {}ms) completed a CPU burst; {} bursts to go [Q:{}]".format(time, running[0][-1].name, running[0][-1].tau, running[0][-1].numCPUBursts, getQueueFormatted(ready_queue_formatted)))
+                
                 old_tau = running[0][-1].tau
                 running[0][-1].tau = math.ceil(process.CPUguess(running[0][-1].tau, running_CPU_original, alpha))
                 print("time {}ms: Recalculated tau for process {}: old tau {}ms; new tau {}ms [Q:{}]".format(time, running[0][-1].name, old_tau, running[0][-1].tau, getQueueFormatted(ready_queue_formatted)))
@@ -134,6 +108,14 @@ def algorithm(process_list, alpha):
                             ready_queue_formatted.remove(p[-1].name)                            
                             running.append( p ) 
                             running_CPU_original = math.ceil(p[-1].CPUlst[0])
+
+                            #stats stuff
+                            total_CPU_burst += process_list_copy[i].CPUlst[0]
+                            total_CPU_burst_count += 1
+                            total_wait_time += (time-p[1])
+                            total_turnaround_time += ((time-p[1]) + total_CPU_burst + (t_cs*2)) #should be wait time + cpu burst time + context switch time
+                            utilization += (p[-1].CPUlst[0]/time)
+
                             print( "time {}ms: Process {} (tau {}ms) started using the CPU for {}ms burst [Q:{}]".format(time, process_list_copy[i].name, process_list_copy[i].tau, process_list_copy[i].CPUlst[0], getQueueFormatted(ready_queue_formatted)) )
             else:
                 if len(process_list_copy[i].CPUlst) > 0:
@@ -143,6 +125,9 @@ def algorithm(process_list, alpha):
                         ready_queue_formatted.remove(p[-1])                                                    
                         running.append( p ) 
                         running_CPU_original = math.ceil(p[-1].CPUlst[0])
+                        total_CPU_burst += process_list_copy[i].CPUlst[0]
+                        total_CPU_burst_count += 1
+                        total_context_switches += 1
                         print( "time {}ms: Process {} (tau {}ms) started using the CPU for {}ms burst [Q:{}]".format(time, process_list_copy[i].name, process_list_copy[i].tau, process_list_copy[i].CPUlst[0], getQueueFormatted(ready_queue_formatted)) )                
         
         #if any processes are done performing IO
@@ -165,12 +150,19 @@ def algorithm(process_list, alpha):
         time+=1
 
     print("time {}ms: Simulator ended for SRT [Q:{}]".format(time, getQueueFormatted(ready_queue_formatted)))
+    average_CPU_burst = total_CPU_burst_time/total_CPU_burst_count
+    average_wait_time = total_wait_time/total_CPU_burst_count
+    average_turnaround_time = total_turnaround_time/total_CPU_burst_count
 
-    ''' use this as the way of maintaining the ready queue from this point forward...
-    for i in range(len(process_list)):
+def outputWriting(filename):
+    f = open(filename, "a")
 
-        if process_list[i].tau < running_process.remaining:
-            print(preempt)
-        else:
-            heapq.heappush(ready_queue, (process_list[i].tau, process_list[i].name) ) #so stuff in the queue is ordered by estimated CPU burst time
-    '''
+    f.write("Algorithm SRT")
+    f.write("-- average CPU burst time: {} ms".format(average_CPU_burst))
+    f.write("-- average wait time: {} ms".format(average_wait_time))
+    f.write("-- average turnaround time: {} ms".format(average_turnaround_time))
+    f.write("-- total number of context switches: {}".format(total_context_switches))
+    f.write("-- total number of preemptions: {}".format(total_preemptions))
+    f.write("-- CPU utilization: {}%".format(utilization))
+
+    f.close()    
