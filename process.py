@@ -36,7 +36,7 @@ class Process:
         
         self.arrival =  math.floor(next_exp(RNG,lambdaNumb, upperBound, )) #initialize arrival time
         self.numCPUBursts = math.ceil(RNG.drand()*100) #calculate total number of CPU bursts using uniform distribution
-
+        self.tracker = 0
         self.CPUlst = []
         self.IOlst = []
         for i in range(self.numCPUBursts):

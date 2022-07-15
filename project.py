@@ -18,7 +18,7 @@ if __name__ == "__main__":
         upper_bound = int(sys.argv[4])   #highest pseudo-random number allowed    
         t_cs = int(sys.argv[5])  #time it takes for a context switch
         alpha = float(sys.argv[6])     #represents alpha used during exponential averaging 
-        t_slice = int(sys.argv[1])   #timeslice used in RR
+        t_slice = int(sys.argv[7])   #timeslice used in RR
         
 
         RNG = Rand48()
@@ -27,9 +27,16 @@ if __name__ == "__main__":
         for i in range(n):
             temp = Process(i, lamb, upper_bound, RNG)
             process_list.append(temp)
-        print("just checking that this is 33 --> "+str(process_list[0].arrival))
-
-        FCFS(process_list)
+        #print("just checking that this is 33 --> "+str(process_list[0].arrival))
+        for i in range(len(process_list)):
+            print("Process %s: arrival time %dms; tau %dms; %d CPU bursts:"%(process_list[i].name, process_list[i].arrival, process_list[i].tau, process_list[i].numCPUBursts))
+            for j in range(len(process_list[i].CPUlst)):
+                if(j < len(process_list[i].CPUlst)-1):
+                    print("--> CPU burst %dms --> I/O burst %dms"%(process_list[i].CPUlst[j], process_list[i].IOlst[j]))    
+                else:
+                    print("--> CPU burst %dms"%(process_list[i].CPUlst[j]))    
+        print()
+        FCFS(process_list, t_cs)
 
         
         
