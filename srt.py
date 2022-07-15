@@ -208,36 +208,37 @@ def algorithm(process_list, alpha, t_cs):
             if IO_processes[i][0] == time:
                 
                 #check if we should preempt or not
-                if IO_processes[i][1].tau < (time-running[0][-1].tau):
+                if len(running) > 0:
+                    if IO_processes[i][1].tau < (time-running[0][-1].tau):
+                        
+                        #preemption occurs here!!!!!!
+                        
+                        ready_queue_formatted.append(running[0][-1])
+                        heapq.heappush(ready_queue, (running[0][-1].tau, time_added, running[0][-1]) )
+                        print("time {}ms: Process {} (tau {}ms) arrived; added to ready queue [Q:{}]".format(time, running[0][-1].name, running[0][-1].tau, getQueueFormatted(ready_queue_formatted))) 
+                        LAST = time
+                        running.pop(0)
                     
-                    #preemption occurs here!!!!!!
-                    
-                    ready_queue_formatted.append(running[0][-1])
-                    heapq.heappush(ready_queue, (running[0][-1].tau, time_added, running[0][-1]) )
-                    print("time {}ms: Process {} (tau {}ms) arrived; added to ready queue [Q:{}]".format(time, running[0][-1].name, running[0][-1].tau, getQueueFormatted(ready_queue_formatted))) 
-                    LAST = time
-                    running.pop(0)
-                
-                    #do we have any more bursts to run?
-                    if len(IO_processes[i][1].CPUlst) > 0:
-                        #has enough time passed to run? aka has a full context switch occured?
-                        if time >= LAST+t_cs:
-                            #reset and set up stuff
-                            must_waits = 0
-                            ready_queue_formatted.remove(IO_processes[i][1])                                                    
-                            running.append( p ) 
-                            running_CPU_original = math.ceil(IO_processes[i][1].CPUlst[0])
+                        #do we have any more bursts to run?
+                        if len(IO_processes[i][1].CPUlst) > 0:
+                            #has enough time passed to run? aka has a full context switch occured?
+                            if time >= LAST+t_cs:
+                                #reset and set up stuff
+                                must_waits = 0
+                                ready_queue_formatted.remove(IO_processes[i][1])                                                    
+                                running.append( p ) 
+                                running_CPU_original = math.ceil(IO_processes[i][1].CPUlst[0])
 
-                            #stats stuff
-                            total_cs_time += t_cs
-                            total_CPU_burst_time += IO_processes[i][1].CPUlst[0]
-                            total_CPU_burst_count += 1
-                            total_turnaround_time += ((time-p[1]) + total_CPU_burst_time + total_cs_time) #should be wait time + cpu burst time + context switch time accrued during this burst
-                            utilization += (IO_processes[i][1].CPUlst[0]/time)
-                            IO_processes[i][1].burst_wait_list.append(time - IO_processes[i][1].burst_arrival)
-                            total_context_switches += 1
+                                #stats stuff
+                                total_cs_time += t_cs
+                                total_CPU_burst_time += IO_processes[i][1].CPUlst[0]
+                                total_CPU_burst_count += 1
+                                total_turnaround_time += ((time-p[1]) + total_CPU_burst_time + total_cs_time) #should be wait time + cpu burst time + context switch time accrued during this burst
+                                utilization += (IO_processes[i][1].CPUlst[0]/time)
+                                IO_processes[i][1].burst_wait_list.append(time - IO_processes[i][1].burst_arrival)
+                                total_context_switches += 1
 
-                            print( "time {}ms: Process {} (tau {}ms) started using the CPU for {}ms burst [Q:{}]".format(time, IO_processes[i][1].name, IO_processes[i][1].tau, IO_processes[i][1].CPUlst[0], getQueueFormatted(ready_queue_formatted)) )                                        
+                                print( "time {}ms: Process {} (tau {}ms) started using the CPU for {}ms burst [Q:{}]".format(time, IO_processes[i][1].name, IO_processes[i][1].tau, IO_processes[i][1].CPUlst[0], getQueueFormatted(ready_queue_formatted)) )                                        
 
                 IO_processes[i][1].IOlst.pop(0)                
                 heapq.heappush(ready_queue, (IO_processes[i][1].tau, time, IO_processes[i][1]) ) 
