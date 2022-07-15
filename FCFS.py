@@ -78,7 +78,7 @@ def FCFS(processes, t_cs):
                                 queue.append(IBur[i])
                                 current_queue.append(IBur[i].name)
                                 
-                                print("ONEtime %dms: Process %s completed I/O; added to ready queue [Q: %s]"%(IBur[i].IOlst[IBur[i].tracker], IBur[i].name," ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                                print("time %dms: Process %s completed I/O; added to ready queue [Q: %s]"%(IBur[i].IOlst[IBur[i].tracker], IBur[i].name," ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                                 IBur[i].tracker+=1
                                 IBur.pop(i)
                         else:
@@ -86,7 +86,7 @@ def FCFS(processes, t_cs):
                                 queue.append(IBur[i])
                                 current_queue.append(IBur[i].name)
                                 
-                                print("TWOtime %dms: Process %s completed I/O; added to ready queue [Q: %s]"%(IBur[i].IOlst[IBur[i].tracker], IBur[i].name," ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                                print("time %dms: Process %s completed I/O; added to ready queue [Q: %s]"%(IBur[i].IOlst[IBur[i].tracker], IBur[i].name," ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                                 IBur[i].tracker+=1
                                 IBur.pop(i)
                         pass
@@ -139,17 +139,20 @@ def FCFS(processes, t_cs):
 
         numb = max(len(section), len(IBur))
         while(i < numb): #check if there are any more arrivals or IO completions from last print call
+            #print(i, len(section), len(IBur))
             if(i < len(section) and i < len(IBur)):
                 #print("here:",elapsedTime, prevTime, section[i].arrival, IBur[i].IOlst[IBur[i].tracker])
                 if(section[i].arrival < IBur[i].IOlst[IBur[i].tracker] and section[i].arrival > prevTime and section[i].arrival <= elapsedTime):
                     queue.append(section[i])
                     current_queue.append(section[i].name)
-                    print("AAtime %dms: Process %s arrived; added to ready queue [Q: %s]"%(section[i].arrival,section[i].name," ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                    print("time %dms: Process %s arrived; added to ready queue [Q: %s]"%(section[i].arrival,section[i].name," ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                    section.pop(i)
+                    i-=1
                     count+=1
                     
                 
                 elif(IBur[i].IOlst[IBur[i].tracker] < section[i].arrival and IBur[i].IOlst[IBur[i].tracker] > prevTime and IBur[i].IOlst[IBur[i].tracker] <= elapsedTime):
-                    print("THREEtime %dms: Process %s completed I/O; added to ready queue [Q: %s]"%(IBur[i].IOlst[IBur[i].tracker], IBur[i].name," ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                    print("time %dms: Process %s completed I/O; added to ready queue [Q: %s]"%(IBur[i].IOlst[IBur[i].tracker], IBur[i].name," ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                     queue.append(IBur[i])
                     current_queue.append(IBur[i].name)
                     IBur[i].tracker+=1
@@ -186,7 +189,7 @@ def FCFS(processes, t_cs):
                     #elapsedTime = IBur[i].IOlst[IBur[i].tracker]
                     queue.append(IBur[i])
                     current_queue.append(IBur[i].name)
-                    print("FOURtime %dms: Process %s completed I/O; added to ready queue [Q: %s]"%(IBur[i].IOlst[IBur[i].tracker], IBur[i].name, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                    print("time %dms: Process %s completed I/O; added to ready queue [Q: %s]"%(IBur[i].IOlst[IBur[i].tracker], IBur[i].name, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                     IBur[i].tracker+=1
                     pops = IBur.pop(i)
                     i-=1  
