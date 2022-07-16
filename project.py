@@ -7,6 +7,7 @@ import math
 import srt
 from process import Process, Rand48
 from FCFS import FCFS
+import sjf 
 
 if __name__ == "__main__":
     
@@ -30,5 +31,5 @@ if __name__ == "__main__":
             process_list.append(temp)
         #print("just checking that this is 5 --> "+str(process_list[7].arrival))
         
-       
+        sjf.sjf(process_list, alpha)
         srt.algorithm(process_list, alpha)
