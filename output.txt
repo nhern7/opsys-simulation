@@ -1,4 +1,4 @@
-Process A: arrival time 2104ms; tau 100ms; 92 CPU bursts:
+Process A: arrival time 2104ms; tau 100ms; 92 CPU burts:
 --> CPU burst 387ms --> I/O burst 1190ms
 --> CPU burst 957ms --> I/O burst 5140ms
 --> CPU burst 319ms --> I/O burst 18510ms
@@ -91,7 +91,7 @@ Process A: arrival time 2104ms; tau 100ms; 92 CPU bursts:
 --> CPU burst 1112ms --> I/O burst 8680ms
 --> CPU burst 122ms --> I/O burst 5290ms
 --> CPU burst 1623ms
-Process B: arrival time 184ms; tau 100ms; 80 CPU bursts:
+Process B: arrival time 184ms; tau 100ms; 80 CPU burts:
 --> CPU burst 807ms --> I/O burst 1480ms
 --> CPU burst 2121ms --> I/O burst 330ms
 --> CPU burst 891ms --> I/O burst 3810ms
@@ -172,7 +172,7 @@ Process B: arrival time 184ms; tau 100ms; 80 CPU bursts:
 --> CPU burst 240ms --> I/O burst 14790ms
 --> CPU burst 351ms --> I/O burst 16640ms
 --> CPU burst 341ms
-Process C: arrival time 64ms; tau 100ms; 68 CPU bursts:
+Process C: arrival time 64ms; tau 100ms; 68 CPU burts:
 --> CPU burst 429ms --> I/O burst 3960ms
 --> CPU burst 1626ms --> I/O burst 20280ms
 --> CPU burst 1525ms --> I/O burst 18990ms
@@ -241,7 +241,7 @@ Process C: arrival time 64ms; tau 100ms; 68 CPU bursts:
 --> CPU burst 1334ms --> I/O burst 7810ms
 --> CPU burst 1837ms --> I/O burst 41920ms
 --> CPU burst 52ms
-Process D: arrival time 1874ms; tau 100ms; 84 CPU bursts:
+Process D: arrival time 1874ms; tau 100ms; 84 CPU burts:
 --> CPU burst 30ms --> I/O burst 39830ms
 --> CPU burst 182ms --> I/O burst 15340ms
 --> CPU burst 152ms --> I/O burst 3660ms
@@ -326,7 +326,7 @@ Process D: arrival time 1874ms; tau 100ms; 84 CPU bursts:
 --> CPU burst 2561ms --> I/O burst 14420ms
 --> CPU burst 348ms --> I/O burst 12070ms
 --> CPU burst 358ms
-Process E: arrival time 626ms; tau 100ms; 96 CPU bursts:
+Process E: arrival time 626ms; tau 100ms; 96 CPU burts:
 --> CPU burst 3797ms --> I/O burst 4580ms
 --> CPU burst 440ms --> I/O burst 3440ms
 --> CPU burst 4641ms --> I/O burst 540ms
@@ -423,7 +423,7 @@ Process E: arrival time 626ms; tau 100ms; 96 CPU bursts:
 --> CPU burst 3010ms --> I/O burst 19660ms
 --> CPU burst 250ms --> I/O burst 25300ms
 --> CPU burst 764ms
-Process F: arrival time 869ms; tau 100ms; 69 CPU bursts:
+Process F: arrival time 869ms; tau 100ms; 69 CPU burts:
 --> CPU burst 1609ms --> I/O burst 10250ms
 --> CPU burst 582ms --> I/O burst 4630ms
 --> CPU burst 2539ms --> I/O burst 5680ms
@@ -493,7 +493,7 @@ Process F: arrival time 869ms; tau 100ms; 69 CPU bursts:
 --> CPU burst 1291ms --> I/O burst 29040ms
 --> CPU burst 2402ms --> I/O burst 3540ms
 --> CPU burst 1347ms
-Process G: arrival time 1078ms; tau 100ms; 8 CPU bursts:
+Process G: arrival time 1078ms; tau 100ms; 8 CPU burts:
 --> CPU burst 1839ms --> I/O burst 21670ms
 --> CPU burst 3987ms --> I/O burst 3900ms
 --> CPU burst 667ms --> I/O burst 14620ms
@@ -502,7 +502,7 @@ Process G: arrival time 1078ms; tau 100ms; 8 CPU bursts:
 --> CPU burst 1117ms --> I/O burst 4670ms
 --> CPU burst 1218ms --> I/O burst 1500ms
 --> CPU burst 579ms
-Process H: arrival time 1133ms; tau 100ms; 1 CPU bursts:
+Process H: arrival time 1133ms; tau 100ms; 1 CPU burts:
 --> CPU burst 1019ms
 
 time 0ms: Simulator started for FCFS [Q: empty]
