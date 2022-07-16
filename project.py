@@ -4,9 +4,9 @@ This is the file that actually runs the simulation, by importing the scheduling 
 import sys
 import random
 import math
-import srt
+#import srt
 from process import Process, Rand48
-from FCFS import FCFS
+#from FCFS import FCFS
 import sjf 
 
 if __name__ == "__main__":
@@ -31,5 +31,13 @@ if __name__ == "__main__":
             process_list.append(temp)
         #print("just checking that this is 5 --> "+str(process_list[7].arrival))
         
+        for i in process_list:
+            print("Process {}: arrival time {}ms; tau {}ms; {} CPU burts:".format(i.name, i.arrival, i.tau, i.numCPUBursts))
+            for j in range(i.numCPUBursts):
+                if (j==i.numCPUBursts-1):
+                    print("--> CPU burst {}ms".format(i.CPUlst[j]))
+                else:
+                    print("--> CPU burst {}ms --> I/O burst {}ms".format(i.CPUlst[j], i.IOlst[j]))
+        print("")
         sjf.sjf(process_list, alpha)
-        srt.algorithm(process_list, alpha)
+       # srt.algorithm(process_list, alpha)
