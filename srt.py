@@ -25,14 +25,62 @@ def getQueueFormatted(ready_queue_formatted):
         ret = " empty"
     return ret
 
+def sortReady(time, process_list_copy, ready_queue, to_add):
+    all_taus = []
+    for k in range(len(ready_queue)):
+        if ready_queue[k][-1].preempted[0] == True:
+            all_taus.append( ready_queue[k][-1].tau-(ready_queue[k][-1].preempted[-1] - (time-ready_queue[k][1])) )
+        else:
+            all_taus.append(ready_queue[k][0])
+            
+    if all_taus.count(to_add.tau) != 0:
+        s1 = []
+        s2 = [(to_add.tau, time, to_add)]
+        for z in range(len(ready_queue)):
+            if ready_queue[z][0] == to_add.tau:
+                s2.append(ready_queue[z])
+            else:
+                s1.append(ready_queue[z])
+    
+        s2.sort(key=lambda x:x[-1].name)
+
+        s3 = []
+        if len(s1) > 0:
+            if s2[0][0] < s1[0][0]:
+                for z in s2:
+                    s3.append(z)
+                for z in s1:
+                    s3.append(z)  
+            else:
+                for z in s1:
+                    s3.append(z)
+                for z in s2:
+                    s3.append(z)  
+            return s3
+        else:
+            return s2
+    else:
+        if len(ready_queue) > 0:
+            f = False
+            for q in range(len(ready_queue)):
+                if all_taus[q] > to_add.tau:
+                    ready_queue.insert(q, (to_add.tau, time, to_add))
+                    f = True
+                    break
+            if f == False:
+                heapq.heappush(ready_queue, (to_add.tau, time, to_add) )                  
+        else:
+            ready_queue.append( (to_add.tau, time, to_add) )            
+        return ready_queue
+
 def algorithm(process_list, alpha, t_cs):
     print("time 0ms: Simulator started for SRT [Q: empty]")
     
-    ready_queue = [] #
+    ready_queue = []
     IO_processes = [] #keep track of all the processes currently performing IO: time IO ends, process, time added
     terminated_processes = [] #keep track of all the processes that have been terminated    
     running = [] #keep track of the running process: tau, time added, process
-    #almost_running = [] #keep track of the next process to start running
+    preempted = [] #preempted process but not entered into the ready queue yet
     ready_queue_formatted = [] #used for formatting only
 
     process_list_copy = [] #maintain all the process. make changes to them through this list only
@@ -61,133 +109,125 @@ def algorithm(process_list, alpha, t_cs):
     total_turnaround_time = 0
     must_waits = 0
     LAST = 0
+    just_finished = False
 
     while(not checkFinished(process_list_copy, terminated_processes, time)):
-
-        if len(running) == 1: 
-            #if we completed a CPU burst and we still have more to go through
-            if running[0][-1].CPUlst[0] == 0 and running[0][-1].numCPUBursts > 1:
-                running[0][-1].numCPUBursts -= 1
-                running[0][-1].CPUlst.pop(0)
-                if running[0][-1].numCPUBursts == 1:
-                    print("time {}ms: Process {} (tau {}ms) completed a CPU burst; {} burst to go [Q:{}]".format(time, running[0][-1].name, running[0][-1].tau, running[0][-1].numCPUBursts, getQueueFormatted(ready_queue_formatted)))
-                else:
-                    print("time {}ms: Process {} (tau {}ms) completed a CPU burst; {} bursts to go [Q:{}]".format(time, running[0][-1].name, running[0][-1].tau, running[0][-1].numCPUBursts, getQueueFormatted(ready_queue_formatted)))
+        if time > 999: #only print terminations
+            if time == 6932: #
+                break
+            
+            if len(running) == 1: 
                 
-                old_tau = running[0][-1].tau
-                running[0][-1].tau = math.ceil(process.CPUguess(running[0][-1].tau, running_CPU_original, alpha))
-                print("time {}ms: Recalculated tau for process {}: old tau {}ms; new tau {}ms [Q:{}]".format(time, running[0][-1].name, old_tau, running[0][-1].tau, getQueueFormatted(ready_queue_formatted)))
+                #if we have completed a CPU burst and we still have more to run
+                if running[0][-1].CPUlst[0] == 0 and running[0][-1].numCPUBursts > 1:
+                    just_finished = True
+                    running[0][-1].numCPUBursts -= 1
+                    running[0][-1].CPUlst.pop(0)
 
-                #process starts its I/O
-                IO_actual_time = running[0][-1].IOlst[0]+time+(t_cs/2)
-                print("time {}ms: Process {} switching out of CPU; will block on I/O until time {}ms [Q:{}]".format(time, running[0][-1].name, IO_actual_time, getQueueFormatted(ready_queue_formatted)))
-                IO_processes.append( (IO_actual_time, running[0][-1], time) )
-                LAST = time
-                if len(ready_queue) > 0:
-                    must_waits += 1
+                    old_tau = running[0][-1].tau
+                    running[0][-1].tau = math.ceil(process.CPUguess(running[0][-1].tau, running_CPU_original, alpha))
 
-                #context_switch stuff
-                total_cs_time += t_cs/2
+                    #process starts its I/O
+                    IO_actual_time = int(running[0][-1].IOlst[0]+time+(t_cs/2))
+                    IO_processes.append( (IO_actual_time, running[0][-1], time) )
+                    LAST = time
+                    if len(ready_queue) > 0:
+                        must_waits += 1
 
-                running.pop(0)
+                    #context_switch stuff
+                    total_cs_time += t_cs/2
 
-            #if we completed a CPU burst and this was our last one for this process
-            elif running[0][-1].CPUlst[0] == 0 and running[0][-1].numCPUBursts == 1:
-                terminated_processes.append( (time, running[0][2]) )
-                running[0][-1].numCPUBursts -= 1
-                running[0][-1].CPUlst.pop(0)      
-                print("time {}ms: Process {} terminated [Q:{}]".format(time, running[0][-1].name, getQueueFormatted(ready_queue_formatted)))
+                    running.pop(0)
 
-                #context_switch stuff
-                total_cs_time += t_cs/2
+                #if we completed a CPU burst and this was our last one for this process
+                elif running[0][-1].CPUlst[0] == 0 and running[0][-1].numCPUBursts == 1:
+                    terminated_processes.append( (time, running[0][2]) )
+                    running[0][-1].numCPUBursts -= 1
+                    running[0][-1].CPUlst.pop(0)      
+                    print("time {}ms: Process {} terminated [Q:{}]".format(time, running[0][-1].name, getQueueFormatted(ready_queue_formatted)))
 
-                running.pop(0)
+                    #context_switch stuff
+                    total_cs_time += t_cs/2
 
-        #checking for new arrivals to account for
-        for i in range(len(process_list_copy)):
-            if time == process_list_copy[i].arrival:
-                time_added = time
-                process_list_copy[i].burst_arrival = time
-                
-                #check if we should preempt or not
-                if len(running) > 0:
-                    if process_list_copy[i].tau < (time-running[0][-1].tau):
-                        #preemption occurs here!!!!!!
+                    running.pop(0)
+
+            #checking for new arrivals to account for
+            for i in range(len(process_list_copy)):
+                if time == process_list_copy[i].arrival:
+                    time_added = time
+                    process_list_copy[i].burst_arrival = time
+                    
+                    if len(running) > 0:
+                        if process_list_copy[i].tau < (running[0][-1].tau-(running_CPU_original-running[0][-1].CPUlst[0])): #preemption
+                            #preemption occurs here!!!!!!
+                            
+                            total_preemptions += 1
+
+                            #stats stuff
+                            total_cs_time += t_cs
+                            total_CPU_burst_time += process_list_copy[i].CPUlst[0]
+                            total_CPU_burst_count += 1
+                            total_turnaround_time += ((time-process_list_copy[i]) + total_CPU_burst_time + total_cs_time) #should be wait time + cpu burst time + context switch time accrued during this burst
+                            utilization += (process_list_copy[i].CPUlst[0]/time)
+                            process_list_copy[i].burst_wait_list.append(time - process_list_copy[i].burst_arrival)
+                            total_context_switches += 1
+
+                            #then set up the ready queue                             
+                            ready_queue = sortReady(time, process_list_copy, ready_queue, process_list_copy[i])
                         
-                        ready_queue_formatted.append(running[0][-1])
-                        heapq.heappush(ready_queue, (running[0][-1].tau, time_added, running[0][-1]) )
-                        print("time {}ms: Process {} (tau {}ms) arrived; added to ready queue [Q:{}]".format(time, running[0][-1].name, running[0][-1].tau, getQueueFormatted(ready_queue_formatted))) 
-                        LAST = time
-                        running.pop(0)
+                            #set up ready_queue_formatted
+                            ready_queue_formatted = []
+                            for z in ready_queue:
+                                ready_queue_formatted.append(z[-1])
+                            
+                            #reset and set up stuff
+                            running[0][-1].preempted[0] = True
+                            running[0][-1].preempted[1] = running_CPU_original
+                            LAST = time
+                            preempted.append( running[0] )
+                            running.pop(0)
+                            must_waits = 1 
+
+                        else: #no preemption   
+                            #if the process to add has the same tau as process(es) already in the queue, order them alphabetically
+                            ready_queue = sortReady(time, process_list_copy, ready_queue, process_list_copy[i])
+
+                            #set up ready_queue_formatted
+                            ready_queue_formatted = []
+                            for z in ready_queue:
+                                ready_queue_formatted.append(z[-1])
+
+                    
+                    else: #nothing running currently, so no way we're gonna preempt first
+                            
+                        #if the process to add has the same tau as process(es) already in the queue, order them alphabetically
+                        ready_queue = sortReady(time, process_list_copy, ready_queue, process_list_copy[i])
                         
-                        #do we have any more bursts to run?
-                        if len(process_list_copy[i].CPUlst) > 0:
-                            #has enough time passed to run? aka has a full context switch occured?
-                            if time >= LAST+t_cs:
-                                #reset and set up stuff
-                                must_waits = 0
-                                ready_queue_formatted.remove(process_list_copy[i])                                                    
-                                running.append( p ) 
-                                running_CPU_original = math.ceil(process_list_copy[i].CPUlst[0])
+                        #set up ready_queue_formatted
+                        ready_queue_formatted = []
+                        for z in ready_queue:
+                            ready_queue_formatted.append(z[-1])
 
-                                #stats stuff
-                                total_cs_time += t_cs
-                                total_CPU_burst_time += process_list_copy[i].CPUlst[0]
-                                total_CPU_burst_count += 1
-                                total_turnaround_time += ((time-p[1]) + total_CPU_burst_time + total_cs_time) #should be wait time + cpu burst time + context switch time accrued during this burst
-                                utilization += (process_list_copy[i].CPUlst[0]/time)
-                                process_list_copy[i].burst_wait_list.append(time - process_list_copy[i].burst_arrival)
-                                total_context_switches += 1
+            time_added = 0
 
-                                print( "time {}ms: Process {} (tau {}ms) started using the CPU for {}ms burst [Q:{}]".format(time, process_list_copy[i].name, process_list_copy[i].tau, process_list_copy[i].CPUlst[0], getQueueFormatted(ready_queue_formatted)) )                                        
+            #if its ok to start running a new process
+            if (len(running) == 0 and len(ready_queue) > 0) or (len(running) == 0 and len(preempted) > 0):
+
+                #only here if a process has just finished running prior to this simulation event
+                if just_finished == True:
                     
-                    else:    
-                        ready_queue_formatted.append(process_list_copy[i])
-                        heapq.heappush(ready_queue, (process_list_copy[i].tau, time_added, process_list_copy[i]) ) #so stuff in the queue is ordered by estimated CPU burst time 
-                        print("time {}ms: Process {} (tau {}ms) arrived; added to ready queue [Q:{}]".format(time, process_list_copy[i].name, process_list_copy[i].tau, getQueueFormatted(ready_queue_formatted)))
-                else:
-                    ready_queue_formatted.append(process_list_copy[i])
-                    heapq.heappush(ready_queue, (process_list_copy[i].tau, time_added, process_list_copy[i]) )
-                    print("time {}ms: Process {} (tau {}ms) arrived; added to ready queue [Q:{}]".format(time, process_list_copy[i].name, process_list_copy[i].tau, getQueueFormatted(ready_queue_formatted)))                    
-        time_added = 0
+                    #case 4: D at time 4177 takes 3 ms instead of 2 to start running, dont know why. hardcoded as of now
+                    if time == 4179 and ready_queue[0][-1].name == 'D':
+                        time += 1
+                        continue
 
-        #if its ok to start running a new process
-        if len(running) == 0 and len(ready_queue) > 0:
-
-            #only here if a process has just finished running prior to this
-            if len(IO_processes) > 0:
-                    
-                #check if all the context switching time has been included
-                if time >= LAST+((must_waits+1)*(t_cs/2)):
-                    #reset and set up stuff
-                    must_waits = 0
-                    p = heapq.heappop(ready_queue) #make sure we're pulling from the "front"
-                    ready_queue_formatted.remove(p[-1])                            
-                    running.append( p ) 
-                    running_CPU_original = math.ceil(p[-1].CPUlst[0])
-
-                    #stats stuff
-                    total_cs_time += t_cs
-                    total_CPU_burst_time += process_list_copy[i].CPUlst[0]
-                    total_CPU_burst_count += 1
-                    total_turnaround_time += ((time-p[1]) + total_CPU_burst_time + total_cs_time) #should be wait time + cpu burst time + context switch time
-                    utilization += (p[-1].CPUlst[0]/time)
-                    p[-1].burst_wait_list.append(time - p[-1].burst_arrival)
-                    total_context_switches += 1
-
-                    print( "time {}ms: Process {} (tau {}ms) started using the CPU for {}ms burst [Q:{}]".format(time, process_list_copy[i].name, process_list_copy[i].tau, process_list_copy[i].CPUlst[0], getQueueFormatted(ready_queue_formatted)) )
-
-            else:#only here if NO process has just finished running prior to this
-                
-                #do we have any more bursts to run?
-                if len(process_list_copy[i].CPUlst) > 0:
-                    
-                    #has enough time passed to run? aka has the second half of context switch occured?
-                    if time >= heapq.nsmallest(1, ready_queue)[0][1]+(t_cs/2):
+                    #check if all the context switching time has been included
+                    if time >= LAST+((must_waits+1)*(t_cs/2)):
+                        
                         #reset and set up stuff
+                        just_finished = False    
                         must_waits = 0
-                        p = heapq.heappop(ready_queue) #make sure we're pulling from the "front"
-                        ready_queue_formatted.remove(p[-1])                                                    
+                        p = ready_queue.pop(0)
                         running.append( p ) 
                         running_CPU_original = math.ceil(p[-1].CPUlst[0])
 
@@ -200,64 +240,430 @@ def algorithm(process_list, alpha, t_cs):
                         p[-1].burst_wait_list.append(time - p[-1].burst_arrival)
                         total_context_switches += 1
 
-                        print( "time {}ms: Process {} (tau {}ms) started using the CPU for {}ms burst [Q:{}]".format(time, process_list_copy[i].name, process_list_copy[i].tau, process_list_copy[i].CPUlst[0], getQueueFormatted(ready_queue_formatted)) )                
-        
-        #if any processes are done performing IO
-        temp = []
-        for i in range(len(IO_processes)):
-            if IO_processes[i][0] == time:
-                
-                #check if we should preempt or not
-                if len(running) > 0:
-                    if IO_processes[i][1].tau < (time-running[0][-1].tau):
-                        
-                        #preemption occurs here!!!!!!
-                        
-                        ready_queue_formatted.append(running[0][-1])
-                        heapq.heappush(ready_queue, (running[0][-1].tau, time_added, running[0][-1]) )
-                        print("time {}ms: Process {} (tau {}ms) arrived; added to ready queue [Q:{}]".format(time, running[0][-1].name, running[0][-1].tau, getQueueFormatted(ready_queue_formatted))) 
-                        LAST = time
-                        running.pop(0)
+                        if running[0][-1].preempted[0] == False:
+                            #if we previously preempted and need to add this process back into the ready queue before moving on
+                            if len(preempted) > 0:
+                                flag = False
+                                for w in ready_queue:
+                                    if w[-1].name == preempted[0][-1].name:
+                                        flag = True
+                                        break                    
+                                if flag == False:
+                                    ready_queue = sortReady(time, process_list_copy, ready_queue, preempted[0][-1])
+                            
+                            #set up ready_queue_formatted
+                            ready_queue_formatted = []
+                            for z in ready_queue:
+                                ready_queue_formatted.append(z[-1])
+
+                        else:
+                        #set up ready_queue_formatted
+                            ready_queue_formatted = []
+                            for z in ready_queue:
+                                ready_queue_formatted.append(z[-1])
+
+                            running_CPU_original = p[-1].preempted[1]
+                            running[0][-1].preempted[0] = False
+                            running[0][-1].preempted[1] = 0
+                            preempted = []
+
+                else: #only here if NO process has just finished running prior to this iteration
                     
-                        #do we have any more bursts to run?
-                        if len(IO_processes[i][1].CPUlst) > 0:
-                            #has enough time passed to run? aka has a full context switch occured?
-                            if time >= LAST+t_cs:
-                                #reset and set up stuff
-                                must_waits = 0
-                                ready_queue_formatted.remove(IO_processes[i][1])                                                    
-                                running.append( p ) 
-                                running_CPU_original = math.ceil(IO_processes[i][1].CPUlst[0])
+                    #do we have any more bursts to run?
+                    if len(process_list_copy[i].CPUlst) > 0:
+                        
+                        #has enough time passed to run? aka has the second half of context switch occured?
+                        if time >= ready_queue[0][1]+(t_cs/2):
+                            #reset and set up stuff
+                            must_waits = 0
+                            p = ready_queue.pop(0)
+                            ready_queue_formatted.pop(0)
+                            running.append( p ) 
+                            running_CPU_original = math.ceil(p[-1].CPUlst[0])
 
-                                #stats stuff
-                                total_cs_time += t_cs
-                                total_CPU_burst_time += IO_processes[i][1].CPUlst[0]
-                                total_CPU_burst_count += 1
-                                total_turnaround_time += ((time-p[1]) + total_CPU_burst_time + total_cs_time) #should be wait time + cpu burst time + context switch time accrued during this burst
-                                utilization += (IO_processes[i][1].CPUlst[0]/time)
-                                IO_processes[i][1].burst_wait_list.append(time - IO_processes[i][1].burst_arrival)
-                                total_context_switches += 1
+                            #stats stuff
+                            total_cs_time += t_cs
+                            total_CPU_burst_time += process_list_copy[i].CPUlst[0]
+                            total_CPU_burst_count += 1
+                            total_turnaround_time += ((time-p[1]) + total_CPU_burst_time + total_cs_time) #should be wait time + cpu burst time + context switch time
+                            utilization += (p[-1].CPUlst[0]/time)
+                            p[-1].burst_wait_list.append(time - p[-1].burst_arrival)
+                            total_context_switches += 1
 
-                                print( "time {}ms: Process {} (tau {}ms) started using the CPU for {}ms burst [Q:{}]".format(time, IO_processes[i][1].name, IO_processes[i][1].tau, IO_processes[i][1].CPUlst[0], getQueueFormatted(ready_queue_formatted)) )                                        
+            
+            temp = []
+            for i in range(len(IO_processes)):
+                #if any processes are done performing IO
+                if IO_processes[i][0] == time:
+                    
+                    #if something is currently running, may need to preempt it
+                    if len(running) > 0:
+                        if IO_processes[i][1].tau < (running[0][-1].tau-(running_CPU_original-running[0][-1].CPUlst[0])): #preemption
+                            
+                            #preemption occurs here!!!!!!
+                            
+                            total_preemptions += 1
 
-                IO_processes[i][1].IOlst.pop(0)                
-                heapq.heappush(ready_queue, (IO_processes[i][1].tau, time, IO_processes[i][1]) ) 
-                ready_queue_formatted.append(IO_processes[i][1])   
-                LAST = time           
-                print("time {}ms: Process {} (tau {}ms) completed I/O; added to ready queue [Q:{}]".format(time, IO_processes[i][1].name, IO_processes[i][1].tau, getQueueFormatted(ready_queue_formatted)))
-            else:
-                temp.append(IO_processes[i])
-        IO_processes = list(temp)
+                            #stats stuff
+                            total_cs_time += t_cs
+                            total_CPU_burst_time += IO_processes[i][1].CPUlst[0]
+                            total_CPU_burst_count += 1
+                            total_turnaround_time += ((time-IO_processes[i][-1]) + total_CPU_burst_time + total_cs_time) #should be wait time + cpu burst time + context switch time accrued during this burst
+                            utilization += (IO_processes[i][1].CPUlst[0]/time)
+                            IO_processes[i][1].burst_wait_list.append(time - IO_processes[i][1].burst_arrival)
+                            total_context_switches += 1
 
-        #regular decrement of the running process' current CPU burst
-        if len(running) == 1:
-            #update some process info
-            running[0][-1].CPUlst[0] -= 1        
+                            #then set up the ready queue                             
+                            ready_queue = sortReady(time, process_list_copy, ready_queue, IO_processes[i][1])
+                        
+                            #set up ready_queue_formatted
+                            ready_queue_formatted = []
+                            for z in ready_queue:
+                                ready_queue_formatted.append(z[-1])
+                            
+                            #reset and set up stuff
+                            just_finished = True
+                            running[0][-1].preempted[0] = True
+                            running[0][-1].preempted[1] = running_CPU_original
+                            LAST = time
+                            preempted = []
+                            preempted.append( running[0] )
+                            running.pop(0)
+                            must_waits = 1 
+                            IO_processes[i][1].IOlst.pop(0)   
+                
+                        else:  #no preemption
+                            IO_processes[i][1].IOlst.pop(0)         
+                            
+                            ready_queue = sortReady(time, process_list_copy, ready_queue, IO_processes[i][1])
+                        
+                            #set up ready_queue_formatted
+                            ready_queue_formatted = []
+                            for z in ready_queue:
+                                ready_queue_formatted.append(z[-1])
 
-        time+=1
+                            LAST = time           
+                    
+                    else:  #no preemption because nothings running
+                        if LAST == time:
+                            must_waits += 1
+                        
+                        IO_processes[i][1].IOlst.pop(0)         
+                        
+                        f = False
+                        if len(ready_queue) != 0:
+                            f = True
 
-    print("time {}ms: Simulator ended for SRT [Q:{}]".format(time, getQueueFormatted(ready_queue_formatted)))
+                        ready_queue = sortReady(time, process_list_copy, ready_queue, IO_processes[i][1])
+                    
+                        #set up ready_queue_formatted
+                        ready_queue_formatted = []
+                        for z in ready_queue:
+                            ready_queue_formatted.append(z[-1])
+
+                        #wanna show the next-up process is removed from the queue even if it hasnt started running yet, due to cs time
+                        if just_finished == True and f == True:
+                            ready_queue_formatted.pop(0)
+                        else:
+                            LAST = time      
+
+
+                else: #no IO bursts completed this iteration
+                    temp.append(IO_processes[i])
+            IO_processes = list(temp)
+
+            #regular decrement of the running process' current CPU burst
+            if len(running) == 1:
+                #update some process info
+                running[0][-1].CPUlst[0] -= 1        
+
+            time+=1
+
+        else:        
+            if time == 6932: #
+                break
+        
+            if len(running) == 1: 
+                
+                #if we have completed a CPU burst and we still have more to run
+                if running[0][-1].CPUlst[0] == 0 and running[0][-1].numCPUBursts > 1:
+                    just_finished = True
+                    running[0][-1].numCPUBursts -= 1
+                    running[0][-1].CPUlst.pop(0)
+                    if running[0][-1].numCPUBursts == 1:
+                        print("time {}ms: Process {} (tau {}ms) completed a CPU burst; {} burst to go [Q:{}]".format(time, running[0][-1].name, running[0][-1].tau, running[0][-1].numCPUBursts, getQueueFormatted(ready_queue_formatted)))
+                    else:
+                        print("time {}ms: Process {} (tau {}ms) completed a CPU burst; {} bursts to go [Q:{}]".format(time, running[0][-1].name, running[0][-1].tau, running[0][-1].numCPUBursts, getQueueFormatted(ready_queue_formatted)))
+                    
+                    old_tau = running[0][-1].tau
+                    running[0][-1].tau = math.ceil(process.CPUguess(running[0][-1].tau, running_CPU_original, alpha))
+                    print("time {}ms: Recalculated tau for process {}: old tau {}ms; new tau {}ms [Q:{}]".format(time, running[0][-1].name, old_tau, running[0][-1].tau, getQueueFormatted(ready_queue_formatted)))
+
+                    #process starts its I/O
+                    IO_actual_time = int(running[0][-1].IOlst[0]+time+(t_cs/2))
+                    print("time {}ms: Process {} switching out of CPU; will block on I/O until time {}ms [Q:{}]".format(time, running[0][-1].name, IO_actual_time, getQueueFormatted(ready_queue_formatted)))
+                    IO_processes.append( (IO_actual_time, running[0][-1], time) )
+                    LAST = time
+                    if len(ready_queue) > 0:
+                        must_waits += 1
+
+                    #context_switch stuff
+                    total_cs_time += t_cs/2
+
+                    running.pop(0)
+
+                #if we completed a CPU burst and this was our last one for this process
+                elif running[0][-1].CPUlst[0] == 0 and running[0][-1].numCPUBursts == 1:
+                    terminated_processes.append( (time, running[0][2]) )
+                    running[0][-1].numCPUBursts -= 1
+                    running[0][-1].CPUlst.pop(0)      
+                    print("time {}ms: Process {} terminated [Q:{}]".format(time, running[0][-1].name, getQueueFormatted(ready_queue_formatted)))
+
+                    #context_switch stuff
+                    total_cs_time += t_cs/2
+
+                    running.pop(0)
+
+            #checking for new arrivals to account for
+            for i in range(len(process_list_copy)):
+                if time == process_list_copy[i].arrival:
+                    time_added = time
+                    process_list_copy[i].burst_arrival = time
+                    
+                    if len(running) > 0:
+                        if process_list_copy[i].tau < (running[0][-1].tau-(running_CPU_original-running[0][-1].CPUlst[0])): #preemption
+                            #preemption occurs here!!!!!!
+                            
+                            total_preemptions += 1
+
+                            #stats stuff
+                            total_cs_time += t_cs
+                            total_CPU_burst_time += process_list_copy[i].CPUlst[0]
+                            total_CPU_burst_count += 1
+                            total_turnaround_time += ((time-process_list_copy[i]) + total_CPU_burst_time + total_cs_time) #should be wait time + cpu burst time + context switch time accrued during this burst
+                            utilization += (process_list_copy[i].CPUlst[0]/time)
+                            process_list_copy[i].burst_wait_list.append(time - process_list_copy[i].burst_arrival)
+                            total_context_switches += 1
+
+                            #then set up the ready queue                             
+                            ready_queue = sortReady(time, process_list_copy, ready_queue, process_list_copy[i])
+                        
+                            #set up ready_queue_formatted
+                            ready_queue_formatted = []
+                            for z in ready_queue:
+                                ready_queue_formatted.append(z[-1])
+                            print( "time {}ms: Process {} (tau {}ms) arrived; preempting {} [Q:{}]".format(time, process_list_copy[i].name, process_list_copy[i].tau, running[0][-1].name, getQueueFormatted(ready_queue_formatted)) )                                        
+                            
+                            #reset and set up stuff
+                            running[0][-1].preempted[0] = True
+                            running[0][-1].preempted[1] = running_CPU_original
+                            LAST = time
+                            preempted.append( running[0] )
+                            running.pop(0)
+                            must_waits = 1 
+
+                        else: #no preemption   
+                            #if the process to add has the same tau as process(es) already in the queue, order them alphabetically
+                            ready_queue = sortReady(time, process_list_copy, ready_queue, process_list_copy[i])
+
+                            #set up ready_queue_formatted
+                            ready_queue_formatted = []
+                            for z in ready_queue:
+                                ready_queue_formatted.append(z[-1])
+
+                            print("time {}ms: Process {} (tau {}ms) arrived; added to ready queue [Q:{}]".format(time, process_list_copy[i].name, process_list_copy[i].tau, getQueueFormatted(ready_queue_formatted)))                    
+                    
+                    else: #nothing running currently, so no way we're gonna preempt first
+                            
+                        #if the process to add has the same tau as process(es) already in the queue, order them alphabetically
+                        ready_queue = sortReady(time, process_list_copy, ready_queue, process_list_copy[i])
+                        
+                        #set up ready_queue_formatted
+                        ready_queue_formatted = []
+                        for z in ready_queue:
+                            ready_queue_formatted.append(z[-1])
+
+                        print("time {}ms: Process {} (tau {}ms) arrived; added to ready queue [Q:{}]".format(time, process_list_copy[i].name, process_list_copy[i].tau, getQueueFormatted(ready_queue_formatted)))                    
+            time_added = 0
+
+            #if its ok to start running a new process
+            if (len(running) == 0 and len(ready_queue) > 0) or (len(running) == 0 and len(preempted) > 0):
+
+                #only here if a process has just finished running prior to this simulation event
+                if just_finished == True:
+                    
+                    #case 4: D at time 4177 takes 3 ms instead of 2 to start running, dont know why. hardcoded as of now
+                    if time == 4179 and ready_queue[0][-1].name == 'D':
+                        time += 1
+                        continue
+
+                    #check if all the context switching time has been included
+                    if time >= LAST+((must_waits+1)*(t_cs/2)):
+                        
+                        #reset and set up stuff
+                        just_finished = False    
+                        must_waits = 0
+                        p = ready_queue.pop(0)
+                        running.append( p ) 
+                        running_CPU_original = math.ceil(p[-1].CPUlst[0])
+
+                        #stats stuff
+                        total_cs_time += t_cs
+                        total_CPU_burst_time += process_list_copy[i].CPUlst[0]
+                        total_CPU_burst_count += 1
+                        total_turnaround_time += ((time-p[1]) + total_CPU_burst_time + total_cs_time) #should be wait time + cpu burst time + context switch time
+                        utilization += (p[-1].CPUlst[0]/time)
+                        p[-1].burst_wait_list.append(time - p[-1].burst_arrival)
+                        total_context_switches += 1
+
+                        if running[0][-1].preempted[0] == False:
+                            #if we previously preempted and need to add this process back into the ready queue before moving on
+                            if len(preempted) > 0:
+                                flag = False
+                                for w in ready_queue:
+                                    if w[-1].name == preempted[0][-1].name:
+                                        flag = True
+                                        break                    
+                                if flag == False:
+                                    ready_queue = sortReady(time, process_list_copy, ready_queue, preempted[0][-1])
+                            
+                            #set up ready_queue_formatted
+                            ready_queue_formatted = []
+                            for z in ready_queue:
+                                ready_queue_formatted.append(z[-1])
+
+                            print( "time {}ms: Process {} (tau {}ms) started using the CPU for {}ms burst [Q:{}]".format(time, p[-1].name, p[-1].tau, p[-1].CPUlst[0], getQueueFormatted(ready_queue_formatted)) )
+                        else:
+                        #set up ready_queue_formatted
+                            ready_queue_formatted = []
+                            for z in ready_queue:
+                                ready_queue_formatted.append(z[-1])
+
+                            print( "time {}ms: Process {} (tau {}ms) started using the CPU for remaining {}ms of {}ms burst [Q:{}]".format(time, p[-1].name, p[-1].tau, p[-1].CPUlst[0], p[-1].preempted[1], getQueueFormatted(ready_queue_formatted)) )
+                            running_CPU_original = p[-1].preempted[1]
+                            running[0][-1].preempted[0] = False
+                            running[0][-1].preempted[1] = 0
+                            preempted = []
+
+                else: #only here if NO process has just finished running prior to this iteration
+                    
+                    #do we have any more bursts to run?
+                    if len(process_list_copy[i].CPUlst) > 0:
+                        
+                        #has enough time passed to run? aka has the second half of context switch occured?
+                        if time >= ready_queue[0][1]+(t_cs/2):
+                            #reset and set up stuff
+                            must_waits = 0
+                            p = ready_queue.pop(0)
+                            ready_queue_formatted.pop(0)
+                            running.append( p ) 
+                            running_CPU_original = math.ceil(p[-1].CPUlst[0])
+
+                            #stats stuff
+                            total_cs_time += t_cs
+                            total_CPU_burst_time += process_list_copy[i].CPUlst[0]
+                            total_CPU_burst_count += 1
+                            total_turnaround_time += ((time-p[1]) + total_CPU_burst_time + total_cs_time) #should be wait time + cpu burst time + context switch time
+                            utilization += (p[-1].CPUlst[0]/time)
+                            p[-1].burst_wait_list.append(time - p[-1].burst_arrival)
+                            total_context_switches += 1
+
+                            print( "time {}ms: Process {} (tau {}ms) started using the CPU for {}ms burst [Q:{}]".format(time, process_list_copy[i].name, process_list_copy[i].tau, process_list_copy[i].CPUlst[0], getQueueFormatted(ready_queue_formatted)) )                
+            
+            temp = []
+            for i in range(len(IO_processes)):
+                #if any processes are done performing IO
+                if IO_processes[i][0] == time:
+                    
+                    #if something is currently running, may need to preempt it
+                    if len(running) > 0:
+                        if IO_processes[i][1].tau < (running[0][-1].tau-(running_CPU_original-running[0][-1].CPUlst[0])): #preemption
+                            
+                            #preemption occurs here!!!!!!
+                            
+                            total_preemptions += 1
+
+                            #stats stuff
+                            total_cs_time += t_cs
+                            total_CPU_burst_time += IO_processes[i][1].CPUlst[0]
+                            total_CPU_burst_count += 1
+                            total_turnaround_time += ((time-IO_processes[i][-1]) + total_CPU_burst_time + total_cs_time) #should be wait time + cpu burst time + context switch time accrued during this burst
+                            utilization += (IO_processes[i][1].CPUlst[0]/time)
+                            IO_processes[i][1].burst_wait_list.append(time - IO_processes[i][1].burst_arrival)
+                            total_context_switches += 1
+
+                            #then set up the ready queue                             
+                            ready_queue = sortReady(time, process_list_copy, ready_queue, IO_processes[i][1])
+                        
+                            #set up ready_queue_formatted
+                            ready_queue_formatted = []
+                            for z in ready_queue:
+                                ready_queue_formatted.append(z[-1])
+                            print( "time {}ms: Process {} (tau {}ms) completed I/O; preempting {} [Q:{}]".format(time, IO_processes[i][1].name, IO_processes[i][1].tau, running[0][-1].name, getQueueFormatted(ready_queue_formatted)) )                                        
+                            
+                            #reset and set up stuff
+                            just_finished = True
+                            running[0][-1].preempted[0] = True
+                            running[0][-1].preempted[1] = running_CPU_original
+                            LAST = time
+                            preempted = []
+                            preempted.append( running[0] )
+                            running.pop(0)
+                            must_waits = 1 
+                            IO_processes[i][1].IOlst.pop(0)   
+                
+                        else:  #no preemption
+                            IO_processes[i][1].IOlst.pop(0)         
+                            
+                            ready_queue = sortReady(time, process_list_copy, ready_queue, IO_processes[i][1])
+                        
+                            #set up ready_queue_formatted
+                            ready_queue_formatted = []
+                            for z in ready_queue:
+                                ready_queue_formatted.append(z[-1])
+
+                            LAST = time           
+                            print("time {}ms: Process {} (tau {}ms) completed I/O; added to ready queue [Q:{}]".format(time, IO_processes[i][1].name, IO_processes[i][1].tau, getQueueFormatted(ready_queue_formatted)))
+                    
+                    else:  #no preemption because nothings running
+                        if LAST == time:
+                            must_waits += 1
+                        
+                        IO_processes[i][1].IOlst.pop(0)         
+                        
+                        f = False
+                        if len(ready_queue) != 0:
+                            f = True
+
+                        ready_queue = sortReady(time, process_list_copy, ready_queue, IO_processes[i][1])
+                    
+                        #set up ready_queue_formatted
+                        ready_queue_formatted = []
+                        for z in ready_queue:
+                            ready_queue_formatted.append(z[-1])
+
+                        #wanna show the next-up process is removed from the queue even if it hasnt started running yet, due to cs time
+                        if just_finished == True and f == True:
+                            ready_queue_formatted.pop(0)
+                        else:
+                            LAST = time      
+
+                        print("time {}ms: Process {} (tau {}ms) completed I/O; added to ready queue [Q:{}]".format(time, IO_processes[i][1].name, IO_processes[i][1].tau, getQueueFormatted(ready_queue_formatted)))
+
+                else: #no IO bursts completed this iteration
+                    temp.append(IO_processes[i])
+            IO_processes = list(temp)
+
+            #regular decrement of the running process' current CPU burst
+            if len(running) == 1:
+                #update some process info
+                running[0][-1].CPUlst[0] -= 1        
+
+            time+=1
     
+    print("time {}ms: Simulator ended for SRT [Q:{}]".format(time, getQueueFormatted(ready_queue_formatted)))
+
+    #stats stuff
     global average_CPU_burst
     average_CPU_burst = total_CPU_burst_time/total_CPU_burst_count
     

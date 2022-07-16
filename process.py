@@ -49,4 +49,4 @@ class Process:
                 
         self.tau = 100 #the next guess for the process CPU burst time, using exponential averaging
         self.remaining = self.CPUlst[0] #the remaining time for the current CPU burst to finish
-
+        self.preempted = [False,0] #just to keep track of preemption info, for srt
