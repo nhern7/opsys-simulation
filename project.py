@@ -27,8 +27,7 @@ if __name__ == "__main__":
         process_list = []
         for i in range(n):
             temp = Process(i, lamb, upper_bound, RNG)
-            process_list.append(temp)
-        #print("just checking that this is 5 --> "+str(process_list[7].arrival))
-        
+            process_list.append(temp)        
        
-        srt.algorithm(process_list, alpha)
+        srt.algorithm(process_list, alpha, t_cs)
+        srt.outputWriting("simout.txt")       
