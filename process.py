@@ -22,11 +22,10 @@ def next_exp(number_gen, lambdaNumb,upperBound):
                 return x
 
 def CPUguess(tau, actual_burst, alpha):
-    ret = alpha * actual_burst + (1-alpha) * tau
+    ret = (alpha * actual_burst) + ((1-alpha) * tau)
     return ret
 
 class Process:
-    
     def __init__(self, PrID, lambdaNumb, upperBound, RNG):
         self.PrID = PrID #process ID number
         if(PrID < 26):
@@ -34,23 +33,20 @@ class Process:
         else:
             print("invalid process ID") #if process ID number is larger than 25, it is invalid  
         
-        self.arrival =  math.floor(next_exp(RNG,lambdaNumb, upperBound, )) #initialize arrival time
+        self.arrival = math.floor(next_exp(RNG,lambdaNumb, upperBound)) #initialize arrival time
         self.numCPUBursts = math.ceil(RNG.drand()*100) #calculate total number of CPU bursts using uniform distribution
-        self.tracker = 0
+
         self.CPUlst = []
         self.IOlst = []
+        self.burst_arrival = 0 #record the arrival time of the current burst
+        self.burst_wait_list = [] #keep track of the wait time for all the bursts
         for i in range(self.numCPUBursts):
-            self.CPUlst.append(math.ceil(next_exp(RNG,lambdaNumb, upperBound))) #calculate CPU burst time with exponential distribution
-            if(i < self.numCPUBursts-1):
+            if i == self.numCPUBursts-1:
+                self.CPUlst.append(math.ceil(next_exp(RNG,lambdaNumb, upperBound))) #calculate CPU burst time with exponential distribution            
+            else:
+                self.CPUlst.append(math.ceil(next_exp(RNG,lambdaNumb, upperBound))) #calculate CPU burst time with exponential distribution
                 self.IOlst.append(math.ceil(next_exp(RNG,lambdaNumb, upperBound)) * 10 )#calculate IO burst time with expoenential distribution
+                
         self.tau = 100 #the next guess for the process CPU burst time, using exponential averaging
-    
-    def processComplete():
-        '''
-        will call this when we complete a process during the simulation
-
-        1) updates tau and total number of cpu bursts
-        2) I/O stuff and readding to the ready queue, if necessary (DO THIS IN SIMULATION)
-        3) output -> "Process _ terminated [current ready queue]" if necessary (DO THIS IN SIMULATION)
-        '''
-
+        self.remaining = self.CPUlst[0] #the remaining time for the current CPU burst to finish
+        self.preempted = [False,0] #just to keep track of preemption info, for srt

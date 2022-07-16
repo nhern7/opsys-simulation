@@ -4,8 +4,10 @@ This is the file that actually runs the simulation, by importing the scheduling 
 import sys
 import random
 import math
+#import srt
 from process import Process, Rand48
-from FCFS import FCFS
+#from FCFS import FCFS
+import sjf 
 
 if __name__ == "__main__":
     
@@ -27,23 +29,15 @@ if __name__ == "__main__":
         for i in range(n):
             temp = Process(i, lamb, upper_bound, RNG)
             process_list.append(temp)
-        #print("just checking that this is 33 --> "+str(process_list[0].arrival))
-        for i in range(len(process_list)):
-            print("Process %s: arrival time %dms; tau %dms; %d CPU bursts:"%(process_list[i].name, process_list[i].arrival, process_list[i].tau, process_list[i].numCPUBursts))
-            for j in range(len(process_list[i].CPUlst)):
-                if(j < len(process_list[i].CPUlst)-1):
-                    print("--> CPU burst %dms --> I/O burst %dms"%(process_list[i].CPUlst[j], process_list[i].IOlst[j]))    
+        
+        for i in process_list:
+            print("Process {}: arrival time {}ms; tau {}ms; {} CPU burts:".format(i.name, i.arrival, i.tau, i.numCPUBursts))
+            for j in range(i.numCPUBursts):
+                if (j==i.numCPUBursts-1):
+                    print("--> CPU burst {}ms".format(i.CPUlst[j]))
                 else:
-                    print("--> CPU burst %dms"%(process_list[i].CPUlst[j]))    
-        print()
-        FCFS(process_list, t_cs)
-
-        
-        
-    
-    
-
-    
-
-
-
+                    print("--> CPU burst {}ms --> I/O burst {}ms".format(i.CPUlst[j], i.IOlst[j]))
+        print("")
+        sjf.sjf(process_list, alpha)
+        srt.algorithm(process_list, alpha, t_cs)
+        srt.outputWriting("simout.txt")
