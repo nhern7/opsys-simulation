@@ -88,7 +88,6 @@ def algorithm(process_list, alpha, t_cs):
         process_list_copy.append(copy.deepcopy(i))
 
     time = 0 #sim time
-    time_added = 0 #time a process is added to the ready queue
     running_CPU_original = 0 #the original CPU burst time (without any runtime being elasped) of the currently running process
 
     #stats set up below
@@ -101,8 +100,8 @@ def algorithm(process_list, alpha, t_cs):
     global total_preemptions
     total_preemptions = 0 
 
-    global total_cs_time
-    total_cs_time = 0
+    #global total_cs_time
+    #total_cs_time = 0
 
     total_CPU_burst_time = 0
     total_CPU_burst_count = 0
@@ -133,7 +132,7 @@ def algorithm(process_list, alpha, t_cs):
                     print("time {}ms: Recalculated tau for process {}: old tau {}ms; new tau {}ms [Q:{}]".format(time, running[0][-1].name, old_tau, running[0][-1].tau, getQueueFormatted(ready_queue_formatted)))
 
                 #process starts its I/O
-                IO_actual_time = int(running[0][-1].IOlst[0]+time+(t_cs/2))
+                #IO_actual_time = int(running[0][-1].IOlst[0]+time+(t_cs/2))
                 if time < 1000:
                     print("time {}ms: Process {} switching out of CPU; will block on I/O until time {}ms [Q:{}]".format(time, running[0][-1].name, running[0][-1].IOlst[0], getQueueFormatted(ready_queue_formatted)))
                 IO_processes.append( (running[0][-1].IOlst[0], running[0][-1], time) )
@@ -142,27 +141,24 @@ def algorithm(process_list, alpha, t_cs):
                     must_waits += 1
 
                 #context_switch stuff
-                total_cs_time += t_cs/2
-
+                #total_cs_time += t_cs/2
                 running.pop(0)
 
             #if we completed a CPU burst and this was our last one for this process
             elif running[0][-1].CPUlst[0] == 0 and running[0][-1].numCPUBursts == 1:
                 terminated_processes.append( (time, running[0][2]) )
                 running[0][-1].numCPUBursts -= 1
-                running[0][-1].CPUlst.pop(0)      
                 print("time {}ms: Process {} terminated [Q:{}]".format(time, running[0][-1].name, getQueueFormatted(ready_queue_formatted)))
 
                 #context_switch stuff
-                total_cs_time += t_cs/2
-
+                #total_cs_time += t_cs/2  
+                running[0][-1].CPUlst.pop(0)      
                 running.pop(0)
 
         #checking for new arrivals to account for
         for i in range(len(process_list_copy)):
             if time == process_list_copy[i].arrival:
-                time_added = time
-                process_list_copy[i].burst_arrival = time
+                #process_list_copy[i].burst_arrival = time
                 
                 if len(running) > 0:
                     if process_list_copy[i].tau < (running[0][-1].tau-(running_CPU_original-running[0][-1].CPUlst[0])): #preemption
@@ -171,13 +167,12 @@ def algorithm(process_list, alpha, t_cs):
                         total_preemptions += 1
 
                         #stats stuff
-                        total_cs_time += t_cs
+                        #total_cs_time += t_cs
                         total_CPU_burst_time += process_list_copy[i].CPUlst[0]
                         total_CPU_burst_count += 1
-                        total_turnaround_time += ((time-process_list_copy[i]) + total_CPU_burst_time + total_cs_time) #should be wait time + cpu burst time + context switch time accrued during this burst
                         utilization += (process_list_copy[i].CPUlst[0]/time)
-                        process_list_copy[i].burst_wait_list.append(time - process_list_copy[i].burst_arrival)
-                        total_context_switches += 1
+                        process_list_copy[i].burst_wait_list.append(time - (LAST+(t_cs/2)) )
+                        #total_context_switches += 1
 
                         #then set up the ready queue                             
                         ready_queue = sortReady(time, process_list_copy, ready_queue, process_list_copy[i])
@@ -207,7 +202,7 @@ def algorithm(process_list, alpha, t_cs):
                             ready_queue_formatted.append(z[-1])
                         if time < 1000:
                             print("time {}ms: Process {} (tau {}ms) arrived; added to ready queue [Q:{}]".format(time, process_list_copy[i].name, process_list_copy[i].tau, getQueueFormatted(ready_queue_formatted)))                    
-                
+
                 else: #nothing running currently, so no way we're gonna preempt first
                         
                     #if the process to add has the same tau as process(es) already in the queue, order them alphabetically
@@ -219,7 +214,6 @@ def algorithm(process_list, alpha, t_cs):
                         ready_queue_formatted.append(z[-1])
                     if time < 1000:
                         print("time {}ms: Process {} (tau {}ms) arrived; added to ready queue [Q:{}]".format(time, process_list_copy[i].name, process_list_copy[i].tau, getQueueFormatted(ready_queue_formatted)))                    
-        time_added = 0
 
         #if its ok to start running a new process
         if (len(running) == 0 and len(ready_queue) > 0) or (len(running) == 0 and len(preempted) > 0):
@@ -243,12 +237,11 @@ def algorithm(process_list, alpha, t_cs):
                     running_CPU_original = math.ceil(p[-1].CPUlst[0])
 
                     #stats stuff
-                    total_cs_time += t_cs
+                    #total_cs_time += t_cs
                     total_CPU_burst_time += process_list_copy[i].CPUlst[0]
                     total_CPU_burst_count += 1
-                    total_turnaround_time += ((time-p[1]) + total_CPU_burst_time + total_cs_time) #should be wait time + cpu burst time + context switch time
                     utilization += (p[-1].CPUlst[0]/time)
-                    p[-1].burst_wait_list.append(time - p[-1].burst_arrival)
+                    p[-1].burst_wait_list.append(time - (p[1]+(t_cs/2)) )
                     total_context_switches += 1
 
                     if running[0][-1].preempted[0] == False:
@@ -268,6 +261,7 @@ def algorithm(process_list, alpha, t_cs):
                             ready_queue_formatted.append(z[-1])
                         if time < 1000:
                             print( "time {}ms: Process {} (tau {}ms) started using the CPU for {}ms burst [Q:{}]".format(time, p[-1].name, p[-1].tau, p[-1].CPUlst[0], getQueueFormatted(ready_queue_formatted)) )
+                        p[-1].cs_count += 1
                     else:
                     #set up ready_queue_formatted
                         ready_queue_formatted = []
@@ -279,6 +273,7 @@ def algorithm(process_list, alpha, t_cs):
                         running[0][-1].preempted[0] = False
                         running[0][-1].preempted[1] = 0
                         preempted = []
+                        p[-1].cs_count += 1
 
             else: #only here if NO process has just finished running prior to this iteration
                 
@@ -295,12 +290,12 @@ def algorithm(process_list, alpha, t_cs):
                         running_CPU_original = math.ceil(p[-1].CPUlst[0])
 
                         #stats stuff
-                        total_cs_time += t_cs
+                        #total_cs_time += t_cs
+                        process_list_copy[i].cs_count += 1
                         total_CPU_burst_time += process_list_copy[i].CPUlst[0]
                         total_CPU_burst_count += 1
-                        total_turnaround_time += ((time-p[1]) + total_CPU_burst_time + total_cs_time) #should be wait time + cpu burst time + context switch time
                         utilization += (p[-1].CPUlst[0]/time)
-                        p[-1].burst_wait_list.append(time - p[-1].burst_arrival)
+                        process_list_copy[i].burst_wait_list.append(time - (p[1]+(t_cs/2)) )
                         total_context_switches += 1
                         if time < 1000:
                             print( "time {}ms: Process {} (tau {}ms) started using the CPU for {}ms burst [Q:{}]".format(time, process_list_copy[i].name, process_list_copy[i].tau, process_list_copy[i].CPUlst[0], getQueueFormatted(ready_queue_formatted)) )                
@@ -319,13 +314,13 @@ def algorithm(process_list, alpha, t_cs):
                         total_preemptions += 1
 
                         #stats stuff
-                        total_cs_time += t_cs
+                        #total_cs_time += t_cs
                         total_CPU_burst_time += IO_processes[i][1].CPUlst[0]
                         total_CPU_burst_count += 1
-                        total_turnaround_time += ((time-IO_processes[i][-1]) + total_CPU_burst_time + total_cs_time) #should be wait time + cpu burst time + context switch time accrued during this burst
+                        process_list_copy[i].cs_from_preemptions += t_cs/2
                         utilization += (IO_processes[i][1].CPUlst[0]/time)
-                        IO_processes[i][1].burst_wait_list.append(time - IO_processes[i][1].burst_arrival)
-                        total_context_switches += 1
+                        #IO_processes[i][-1].burst_wait_list.append(time - (IO_processes[i][1].burst_arrival) )
+                        #total_context_switches += 1
 
                         #then set up the ready queue                             
                         ready_queue = sortReady(time, process_list_copy, ready_queue, IO_processes[i][1])
@@ -412,11 +407,10 @@ def algorithm(process_list, alpha, t_cs):
     
     global average_turnaround_time
     for i in range(len(process_list_copy)):
-        total_turnaround_time += sum(process_list_copy[i].burst_wait_list) + sum(process_list[i].CPUlst)
-    total_turnaround_time += total_cs_time    #NOTE im not entirely sure how to include context switch time. see turnaround time on page 6
+        total_turnaround_time += sum(process_list[i].CPUlst) + sum(process_list_copy[i].burst_wait_list) + (process_list_copy[i].cs_count*t_cs)
     average_turnaround_time = total_turnaround_time/total_CPU_burst_count
 
-    utilization = (total_CPU_burst_time/time)
+    utilization = (total_CPU_burst_time/time)*100
 
 def outputWriting(filename):
     f = open(filename, "a")

@@ -13,7 +13,7 @@ import copy
 if __name__ == "__main__":
     
     if len(sys.argv) != 8:  #must be given exactly 8 args, else theres a problem...
-        print("we have problems")
+        print("ERROR: improper arguments provided")
     else:
         n = int(sys.argv[1])     #number of processes
         seed = int(sys.argv[2])  #seed for pseudo-random number generation
