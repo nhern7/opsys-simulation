@@ -9,7 +9,6 @@ def sjf(processes, alpha):
     context_switches = 0
     queue = [] # the entire process
     io_process = {}
-    # terminated = []
     running = [False, '', '', '']
     processes.sort(key = lambda x : x.numCPUBursts)
     arrival_times = {}
@@ -31,7 +30,8 @@ def sjf(processes, alpha):
             current_queue.append(arrival_times[elapsedTime])
             queue.sort(key = lambda x : x.numCPUBursts)
             current_queue = sorted(current_queue)
-            print("time {}ms: Process {} (tau {}ms) arrived; added to ready queue [Q: {}]".format(elapsedTime, arrival_times[elapsedTime], process_stuff[arrival_times[elapsedTime]].tau, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+            if (elapsedTime <= 1000):
+                print("time {}ms: Process {} (tau {}ms) arrived; added to ready queue [Q: {}]".format(elapsedTime, arrival_times[elapsedTime], process_stuff[arrival_times[elapsedTime]].tau, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
         if (running[0]):
             if (running[1]==elapsedTime):
             # CPU burst started
