@@ -50,3 +50,4 @@ class Process:
         self.tau = int(1/lambdaNumb) #the next guess for the process CPU burst time, using exponential averaging
         self.remaining = self.CPUlst[0] #the remaining time for the current CPU burst to finish
         self.preempted = [False,0] #just to keep track of preemption info, for srt
+        self.cs_count = 0 #how many context switches the process has (everytime it starts using the cpu, including due to preemptions)
