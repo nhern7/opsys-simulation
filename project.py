@@ -44,6 +44,8 @@ if __name__ == "__main__":
                     print("--> CPU burst {}ms --> I/O burst {}ms".format(i.CPUlst[j], i.IOlst[j]))
         print("")
         FCFS(process_list, t_cs)     
+        print()
         sjf.sjf(process_list_temp, alpha)
+        print()
         srt.algorithm(process_list, alpha, t_cs)
         srt.outputWriting("simout.txt")
