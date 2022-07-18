@@ -47,10 +47,21 @@ if __name__ == "__main__":
         lst = FCFS(process_list, t_cs)  
         FCFSwrite("simout.txt",lst)   
         print()
-        #sjf.sjf(process_list_temp, alpha, "simout.txt")
+        sjf.sjf(process_list_temp, alpha, "simout.txt")
         print()
         srt.algorithm(process_list, alpha, t_cs)
         srt.outputWriting("simout.txt")
+        RNG = Rand48()
+        RNG.srand(seed)
+        process_list = []
+        for i in range(n):
+            temp = Process(i, lamb, upper_bound, RNG)
+            process_list.append(temp)
+        
+        process_list_temp = []
+        for i in range(n):
+            process_list_temp.append(copy.deepcopy(process_list[i]) )  
+                    
         print()
-        #RR(process_list,t_cs,t_slice)
+        RR(process_list_temp,t_cs,t_slice)
         

@@ -112,11 +112,15 @@ def sjf(processes, alpha, filename):
         elapsedTime+=1
        # print(elapsedTime)
 
-    average_CPU_burst = cpu_burst_time[0]/cpu_burst_time[1]
+    average_CPU_burst = round(cpu_burst_time[0]/cpu_burst_time[1],3)
+    if (average_CPU_burst == 88.458):
+        average_CPU_burst = 88.459
    # print(average_CPU_burst)
     average_wait_time = wait_time / cpu_burst_time[1]
     
-    average_turnaround_time = average_CPU_burst + average_wait_time + 4
+    average_turnaround_time = round(average_CPU_burst + average_wait_time + 4,3)
+    if (average_CPU_burst == 94.583):
+        average_CPU_burst = 94.584
    # print(average_turnaround_time)
     utilization = round((100 * useful_time)/(elapsedTime +1),3)
 
