@@ -4,10 +4,10 @@ This is the file that actually runs the simulation, by importing the scheduling 
 import sys
 import random
 import math
-import srt
+#import srt
 from process import Process, Rand48
 from FCFS import FCFS, FCFSwrite
-import sjf 
+#import sjf 
 import copy
 from RR import RR
 
@@ -44,13 +44,13 @@ if __name__ == "__main__":
                 else:
                     print("--> CPU burst {}ms --> I/O burst {}ms".format(i.CPUlst[j], i.IOlst[j]))
         print("")
-        lst = FCFS(process_list, t_cs)  
+        """lst = FCFS(process_list, t_cs)  
         FCFSwrite("simout.txt",lst)   
         print()
         sjf.sjf(process_list_temp, alpha, "simout.txt")
         print()
         srt.algorithm(process_list, alpha, t_cs)
-        srt.outputWriting("simout.txt")
+        srt.outputWriting("simout.txt")"""
         print()
         RR(process_list,t_cs,t_slice)
         
