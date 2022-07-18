@@ -1,9 +1,18 @@
 from cProfile import run
 from optparse import check_builtin
+import sys, os
 
+# Disable
+def blockPrint():
+    sys.stdout = open(os.devnull, 'w')
+
+# Restore
+def enablePrint():
+    sys.stdout = sys.__stdout__
 
 def checkOtherTimes(processes, queue, current_queue, IBur, endWindow, elapsedTimel, running_state, start, eTime):
-    
+    if(elapsedTimel[0] > 1000):
+        blockPrint()
     eTime[-1] = endWindow
     IBur.sort(key = lambda x:x.IOlst[x.tracker])
     
@@ -97,6 +106,8 @@ def RR(processes, t_cs, t_slice):
     
     print("time %dms: Simulator started for Round Robin [Q: %s]"%(elapsedTime, "empty"))
     while(len(terminated)!=total):
+        if(elapsedTime > 1000):
+            blockPrint()
         cTime[0] = elapsedTime
         if(elapsedTime == 0):
             queue.append(processes.pop(0))

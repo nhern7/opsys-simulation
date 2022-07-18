@@ -1,3 +1,21 @@
+def FCFSwrite(filename,all):
+    f = open(filename, "a")
+    average_CPU_burst = all[0]
+    context_switches = all[1]
+    average_wait_time = all[3]
+    average_turnaround_time = all[2]
+    utilization = all[4]
+
+
+    f.write("Algorithm FCFS\n")
+    f.write("-- average CPU burst time: {:.3f} ms\n".format(average_CPU_burst))
+    f.write("-- average wait time: {:.3f} ms\n".format(average_wait_time))
+    f.write("-- average turnaround time: {:.3f} ms\n".format(average_turnaround_time))
+    f.write("-- total number of context switches: {}\n".format(context_switches))
+    f.write("-- total number of preemptions: 0\n")
+    f.write("-- CPU utilization: {:.3f}%\n".format(utilization))
+
+    f.close()
 def FCFS(processes, t_cs):
     queue = []
     terminated = []
@@ -11,7 +29,17 @@ def FCFS(processes, t_cs):
     pops = 0
     finished = 0
     blink = -1
-    stats = []
+    context_switches = 0
+    burst_time = 0
+    finalT = 0
+    avgCPUBtime = 0
+    waitTimes = 0
+    for i in range(len(processes)):
+        waitTimes += sum(processes[i].IOlst)
+    
+    for i in range(len(processes)):
+        for j in range(len(processes[i].CPUlst)):
+            processes[i].CPUlst[j]+=burst_time
     print("time 0ms: Simulator started for FCFS [Q: empty]")
     while(len(terminated)!=len(processes)):
         if(elapsedTime == 0): #first process on ready queue to start everything
@@ -43,18 +71,21 @@ def FCFS(processes, t_cs):
                                 if (elapsedTime <= 1000): 
                                     print("time %dms: Process %s completed a CPU burst; %d %s to go [Q: %s]"%(elapsedTime, running_state.name, len(running_state.CPUlst)-running_state.tracker-1, "bursts" if len(running_state.CPUlst)-running_state.tracker-1  > 1 else "burst"," ".join(current_queue[:-1]) if len(current_queue[:-1])!= 0 else "empty"))
                                     print("time %dms: Process %s switching out of CPU; will block on I/O until time %dms [Q: %s]"%(elapsedTime, running_state.name, elapsedTime+running_state.IOlst[running_state.tracker]+2, " ".join(current_queue[:-1]) if len(current_queue[:-1])!= 0 else "empty"))   
+                                    context_switches+=1
                                 finished = 1
                                 printed = 1
                             else:
                                 if (elapsedTime <= 1000):
                                     print("time %dms: Process %s completed a CPU burst; %d %s to go [Q: %s]"%(elapsedTime, running_state.name, len(running_state.CPUlst)-running_state.tracker-1, "bursts" if len(running_state.CPUlst)-running_state.tracker-1  > 1 else "burst"," ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                                     print("time %dms: Process %s switching out of CPU; will block on I/O until time %dms [Q: %s]"%(elapsedTime, running_state.name, elapsedTime+running_state.IOlst[running_state.tracker]+2, " ".join(current_queue) if len(current_queue)!= 0 else "empty")) 
+                                    context_switches+=1
                                 printed = 1
                                 finished = 1
                     if(printed == 0):
                         if (elapsedTime <= 1000):
                             print("time %dms: Process %s completed a CPU burst; %d %s to go [Q: %s]"%(elapsedTime, running_state.name, len(running_state.CPUlst)-running_state.tracker-1, "bursts" if len(running_state.CPUlst)-running_state.tracker-1  > 1 else "burst"," ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                             print("time %dms: Process %s switching out of CPU; will block on I/O until time %dms [Q: %s]"%(elapsedTime, running_state.name, elapsedTime+running_state.IOlst[running_state.tracker]+2, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                            context_switches+=1
                     if(len(queue)>0):
                         if(queue[-1].tracker > 0):
                             if(queue[-1].IOlst[queue[-1].tracker-1] == elapsedTime):
@@ -218,7 +249,11 @@ def FCFS(processes, t_cs):
                         break
             i+=1
     print("time %dms: Simulator ended for FCFS [Q: %s]"%(elapsedTime+2, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
-
+    finalT = elapsedTime+2
+    avgCPUBtime = burst_time/finalT
+    waitTimes = waitTimes/finalT
+    all = [context_switches,finalT,avgCPUBtime, waitTimes, waitTimes]
+    return all
 
                 
                 
