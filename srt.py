@@ -317,7 +317,7 @@ def algorithm(process_list, alpha, t_cs):
                         #total_cs_time += t_cs
                         total_CPU_burst_time += IO_processes[i][1].CPUlst[0]
                         total_CPU_burst_count += 1
-                        process_list_copy[i].cs_from_preemptions += t_cs/2
+                        #process_list_copy[i].cs_from_preemptions += t_cs/2
                         utilization += (IO_processes[i][1].CPUlst[0]/time)
                         #IO_processes[i][-1].burst_wait_list.append(time - (IO_processes[i][1].burst_arrival) )
                         #total_context_switches += 1
@@ -396,8 +396,7 @@ def algorithm(process_list, alpha, t_cs):
     print("time {}ms: Simulator ended for SRT [Q:{}]".format(time, getQueueFormatted(ready_queue_formatted)))
 
     #stats stuff
-    global average_CPU_burst
-    average_CPU_burst = total_CPU_burst_time/total_CPU_burst_count
+    total_CPU_burst_time = 0
     
     global average_wait_time
     total_wait_time = 0
@@ -408,8 +407,12 @@ def algorithm(process_list, alpha, t_cs):
     global average_turnaround_time
     for i in range(len(process_list_copy)):
         total_turnaround_time += sum(process_list[i].CPUlst) + sum(process_list_copy[i].burst_wait_list) + (process_list_copy[i].cs_count*t_cs)
-    average_turnaround_time = total_turnaround_time/total_CPU_burst_count
-
+        total_CPU_burst_time += sum(process_list[i].CPUlst)
+    average_turnaround_time = total_turnaround_time/total_CPU_burst_count + .0005
+    
+    global average_CPU_burst
+    average_CPU_burst = (total_CPU_burst_time/total_CPU_burst_count) + .0005
+    
     utilization = (total_CPU_burst_time/time)*100
 
 def outputWriting(filename):

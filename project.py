@@ -47,10 +47,10 @@ if __name__ == "__main__":
         lst = FCFS(process_list, t_cs)  
         FCFSwrite("simout.txt",lst)   
         print()
-        sjf.sjf(process_list_temp, alpha, "simout.txt")
+        #sjf.sjf(process_list_temp, alpha, "simout.txt")
         print()
         srt.algorithm(process_list, alpha, t_cs)
         srt.outputWriting("simout.txt")
         print()
-        RR(process_list,t_cs,t_slice)
+        #RR(process_list,t_cs,t_slice)
         
