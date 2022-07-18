@@ -291,14 +291,14 @@ def algorithm(process_list, alpha, t_cs):
 
                         #stats stuff
                         #total_cs_time += t_cs
-                        process_list_copy[i].cs_count += 1
-                        total_CPU_burst_time += process_list_copy[i].CPUlst[0]
+                        p[-1].cs_count += 1
+                        total_CPU_burst_time += p[-1].CPUlst[0]
                         total_CPU_burst_count += 1
                         utilization += (p[-1].CPUlst[0]/time)
-                        process_list_copy[i].burst_wait_list.append(time - (p[1]+(t_cs/2)) )
+                        p[-1].burst_wait_list.append(time - (p[1]+(t_cs/2)) )
                         total_context_switches += 1
                         if time < 1000:
-                            print( "time {}ms: Process {} (tau {}ms) started using the CPU for {}ms burst [Q:{}]".format(time, process_list_copy[i].name, process_list_copy[i].tau, process_list_copy[i].CPUlst[0], getQueueFormatted(ready_queue_formatted)) )                
+                            print( "time {}ms: Process {} (tau {}ms) started using the CPU for {}ms burst [Q:{}]".format(time, p[-1].name, p[-1].tau, p[-1].CPUlst[0], getQueueFormatted(ready_queue_formatted)) )                
         
         temp = []
         for i in range(len(IO_processes)):
