@@ -11,6 +11,7 @@ def FCFS(processes, t_cs):
     pops = 0
     finished = 0
     blink = -1
+    stats = []
     print("time 0ms: Simulator started for FCFS [Q: empty]")
     while(len(terminated)!=len(processes)):
         if(elapsedTime == 0): #first process on ready queue to start everything
