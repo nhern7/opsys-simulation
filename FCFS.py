@@ -28,7 +28,8 @@ def FCFS(processes, t_cs):
                 current_queue.pop(0)
                 elapsedTime+=2
                 finished = 0
-                print("time %dms: Process %s started using the CPU for %dms burst [Q: %s]"%(elapsedTime, running_state.name, running_state.CPUlst[running_state.tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                if (elapsedTime <= 1000):
+                    print("time %dms: Process %s started using the CPU for %dms burst [Q: %s]"%(elapsedTime, running_state.name, running_state.CPUlst[running_state.tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                 elapsedTime += running_state.CPUlst[burst]
 
             elif(running_state!= 0 and len(queue) >= 0):
@@ -38,23 +39,26 @@ def FCFS(processes, t_cs):
                         #print("elapsedTime: ", elapsedTime)
                         if(queue[-1].tracker > 0):
                             if(queue[-1].IOlst[queue[-1].tracker-1] == elapsedTime):
-
-                                print("time %dms: Process %s completed a CPU burst; %d %s to go [Q: %s]"%(elapsedTime, running_state.name, len(running_state.CPUlst)-running_state.tracker-1, "bursts" if len(running_state.CPUlst)-running_state.tracker-1  > 1 else "burst"," ".join(current_queue[:-1]) if len(current_queue[:-1])!= 0 else "empty"))
-                                print("time %dms: Process %s switching out of CPU; will block on I/O until time %dms [Q: %s]"%(elapsedTime, running_state.name, elapsedTime+running_state.IOlst[running_state.tracker]+2, " ".join(current_queue[:-1]) if len(current_queue[:-1])!= 0 else "empty"))   
+                                if (elapsedTime <= 1000): 
+                                    print("time %dms: Process %s completed a CPU burst; %d %s to go [Q: %s]"%(elapsedTime, running_state.name, len(running_state.CPUlst)-running_state.tracker-1, "bursts" if len(running_state.CPUlst)-running_state.tracker-1  > 1 else "burst"," ".join(current_queue[:-1]) if len(current_queue[:-1])!= 0 else "empty"))
+                                    print("time %dms: Process %s switching out of CPU; will block on I/O until time %dms [Q: %s]"%(elapsedTime, running_state.name, elapsedTime+running_state.IOlst[running_state.tracker]+2, " ".join(current_queue[:-1]) if len(current_queue[:-1])!= 0 else "empty"))   
                                 finished = 1
                                 printed = 1
                             else:
-                                print("time %dms: Process %s completed a CPU burst; %d %s to go [Q: %s]"%(elapsedTime, running_state.name, len(running_state.CPUlst)-running_state.tracker-1, "bursts" if len(running_state.CPUlst)-running_state.tracker-1  > 1 else "burst"," ".join(current_queue) if len(current_queue)!= 0 else "empty"))
-                                print("time %dms: Process %s switching out of CPU; will block on I/O until time %dms [Q: %s]"%(elapsedTime, running_state.name, elapsedTime+running_state.IOlst[running_state.tracker]+2, " ".join(current_queue) if len(current_queue)!= 0 else "empty")) 
+                                if (elapsedTime <= 1000):
+                                    print("time %dms: Process %s completed a CPU burst; %d %s to go [Q: %s]"%(elapsedTime, running_state.name, len(running_state.CPUlst)-running_state.tracker-1, "bursts" if len(running_state.CPUlst)-running_state.tracker-1  > 1 else "burst"," ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                                    print("time %dms: Process %s switching out of CPU; will block on I/O until time %dms [Q: %s]"%(elapsedTime, running_state.name, elapsedTime+running_state.IOlst[running_state.tracker]+2, " ".join(current_queue) if len(current_queue)!= 0 else "empty")) 
                                 printed = 1
                                 finished = 1
                     if(printed == 0):
-                        print("time %dms: Process %s completed a CPU burst; %d %s to go [Q: %s]"%(elapsedTime, running_state.name, len(running_state.CPUlst)-running_state.tracker-1, "bursts" if len(running_state.CPUlst)-running_state.tracker-1  > 1 else "burst"," ".join(current_queue) if len(current_queue)!= 0 else "empty"))
-                        print("time %dms: Process %s switching out of CPU; will block on I/O until time %dms [Q: %s]"%(elapsedTime, running_state.name, elapsedTime+running_state.IOlst[running_state.tracker]+2, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                        if (elapsedTime <= 1000):
+                            print("time %dms: Process %s completed a CPU burst; %d %s to go [Q: %s]"%(elapsedTime, running_state.name, len(running_state.CPUlst)-running_state.tracker-1, "bursts" if len(running_state.CPUlst)-running_state.tracker-1  > 1 else "burst"," ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                            print("time %dms: Process %s switching out of CPU; will block on I/O until time %dms [Q: %s]"%(elapsedTime, running_state.name, elapsedTime+running_state.IOlst[running_state.tracker]+2, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                     if(len(queue)>0):
                         if(queue[-1].tracker > 0):
                             if(queue[-1].IOlst[queue[-1].tracker-1] == elapsedTime):
-                                print("time %dms: Process %s completed I/O; added to ready queue [Q: %s]"%(queue[-1].IOlst[queue[-1].tracker-1], queue[-1].name, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                                if (elapsedTime <= 1000):
+                                    print("time %dms: Process %s completed I/O; added to ready queue [Q: %s]"%(queue[-1].IOlst[queue[-1].tracker-1], queue[-1].name, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                     save = running_state.IOlst[running_state.tracker]
                     running_state.IOlst[running_state.tracker] = elapsedTime+running_state.IOlst[running_state.tracker]+2
                     IBur.append(running_state)         
@@ -81,16 +85,16 @@ def FCFS(processes, t_cs):
 
                                 queue.append(IBur[i])
                                 current_queue.append(IBur[i].name)
-                                
-                                print("time %dms: Process %s completed I/O; added to ready queue [Q: %s]"%(IBur[i].IOlst[IBur[i].tracker], IBur[i].name," ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                                if (elapsedTime <= 1000):
+                                    print("time %dms: Process %s completed I/O; added to ready queue [Q: %s]"%(IBur[i].IOlst[IBur[i].tracker], IBur[i].name," ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                                 IBur[i].tracker+=1
                                 IBur.pop(i)
                         else:
                             if(IBur[i].IOlst[IBur[i].tracker] < elapsedTime):
                                 queue.append(IBur[i])
                                 current_queue.append(IBur[i].name)
-                                
-                                print("time %dms: Process %s completed I/O; added to ready queue [Q: %s]"%(IBur[i].IOlst[IBur[i].tracker], IBur[i].name," ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                                if (elapsedTime <= 1000):
+                                    print("time %dms: Process %s completed I/O; added to ready queue [Q: %s]"%(IBur[i].IOlst[IBur[i].tracker], IBur[i].name," ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                                 IBur[i].tracker+=1
                                 IBur.pop(i)
                         pass
@@ -109,14 +113,16 @@ def FCFS(processes, t_cs):
                         
                 current_queue.pop(0)
                 finished = 0
-                print("time %dms: Process %s started using the CPU for %dms burst [Q: %s]"%(elapsedTime, running_state.name, running_state.CPUlst[running_state.tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                if (elapsedTime <= 1000):
+                    print("time %dms: Process %s started using the CPU for %dms burst [Q: %s]"%(elapsedTime, running_state.name, running_state.CPUlst[running_state.tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                 elapsedTime += running_state.CPUlst[running_state.tracker]
                 #print(elapsedTime)
             elif(running_state != 0 and len(queue) > 0):
                 elapsedTime+=t_cs
                 running_state = queue.pop(0)  
                 finished = 0
-                print("time %dms: Process %s started using the CPU for %dms burst [Q: %s]"%(elapsedTime, running_state.name, running_state.CPUlst[running_state.tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                if (elapsedTime <= 1000):
+                    print("time %dms: Process %s started using the CPU for %dms burst [Q: %s]"%(elapsedTime, running_state.name, running_state.CPUlst[running_state.tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                 elapsedTime += running_state.CPUlst[running_state.tracker]
             '''
             elif(running_state == 0 and len(queue) == 0 and len(IBur) > 0):
@@ -196,7 +202,8 @@ def FCFS(processes, t_cs):
                     queue.append(IBur[i])
                     current_queue.append(IBur[i].name)
                     #print(elapsedTime)
-                    print("time %dms: Process %s completed I/O; added to ready queue [Q: %s]"%(IBur[i].IOlst[IBur[i].tracker], IBur[i].name, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                    if (elapsedTime <= 1000):
+                        print("time %dms: Process %s completed I/O; added to ready queue [Q: %s]"%(IBur[i].IOlst[IBur[i].tracker], IBur[i].name, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                     #print(elapsedTime)
                     IBur[i].tracker+=1
                     pops = IBur.pop(i)

@@ -102,10 +102,10 @@ def sjf(processes, alpha, filename):
             process_stuff[next_p.name].CPUlst.pop(0)
             context_switches+=1
 
-        #if (current_p != '' and next_p != current_p):
-          #  running[1]+=2
-           # running[2]+=2
-
+            if (current_p != '' and next_p != current_p):
+                running[1]+=2
+                running[2]+=2
+    
         for p in set(old_queue).intersection(queue):
             wait_time+=1
 
@@ -113,11 +113,11 @@ def sjf(processes, alpha, filename):
        # print(elapsedTime)
 
     average_CPU_burst = cpu_burst_time[0]/cpu_burst_time[1]
-    
+   # print(average_CPU_burst)
     average_wait_time = wait_time / cpu_burst_time[1]
     
     average_turnaround_time = average_CPU_burst + average_wait_time + 4
-
+   # print(average_turnaround_time)
     utilization = round((100 * useful_time)/(elapsedTime +1),3)
 
     f = open(filename, "a")
