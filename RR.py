@@ -24,14 +24,15 @@ def checkOtherTimes(oldP, processes, queue, current_queue, IBur, endWindow, elap
                 elapsedTimel[0]=processes[0].arrival
                 queue.append(processes[0])
                 current_queue.append(processes[0].name)
-                print("time %dms: Process %s arrived; added to ready queue [Q: %s]"%(processes[0].arrival, processes[0].name, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                if(processes[0].arrival < 1000):
+                    print("time %dms: Process %s arrived; added to ready queue [Q: %s]"%(processes[0].arrival, processes[0].name, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                 processes.pop(0)
             elif( IBur[0].IOlst[IBur[0].tracker] < endWindow and processes[0].arrival > IBur[0].IOlst[IBur[0].tracker]):
                 elapsedTimel[0]=processes[0].arrival
                 queue.append(IBur[0])
                 current_queue.append(IBur[0].name)
-
-                print("time %dms: Process %s completed I/O; added to ready queue [Q: %s]"%(IBur[0].IOlst[IBur[0].tracker], IBur[0].name, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                if(IBur[0].IOlst[IBur[0].tracker] < 1000):
+                    print("time %dms: Process %s completed I/O; added to ready queue [Q: %s]"%(IBur[0].IOlst[IBur[0].tracker], IBur[0].name, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                 IBur[0].tracker+=1
                 oldP[IBur[0]].tracker+=1
                 IBur.pop(0)
@@ -40,10 +41,12 @@ def checkOtherTimes(oldP, processes, queue, current_queue, IBur, endWindow, elap
                 queue.append(processes[0])
                 current_queue.append(processes[0].name)
                 processes.pop(0)
-                print("time %dms: Process %s arrived; added to ready queue [Q: %s]"%(queue[-1].arrival,processes[0].name," ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                if(queue[-1].arrival < 1000):
+                    print("time %dms: Process %s arrived; added to ready queue [Q: %s]"%(queue[-1].arrival,processes[0].name," ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                 queue.append(IBur[0].IOlst[IBur[0].tracker])
                 current_queue.append(IBur[0].name)
-                print("time %dms: Process %s completed I/O; added to ready queue [Q: %s]"%(IBur[0].IOlst[IBur[0].tracker], IBur[0].name," ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                if(IBur[0].IOlst[IBur[0].tracker] < 1000):
+                    print("time %dms: Process %s completed I/O; added to ready queue [Q: %s]"%(IBur[0].IOlst[IBur[0].tracker], IBur[0].name," ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                 IBur[0].tracker+=1
                 oldP[IBur[0]].tracker+=1
                 IBur.pop(0)
@@ -54,7 +57,8 @@ def checkOtherTimes(oldP, processes, queue, current_queue, IBur, endWindow, elap
                 elapsedTimel[0]=processes[0].arrival
                 queue.append(processes[0])
                 current_queue.append(processes[0].name)
-                print("time %dms: Process %s arrived; added to ready queue [Q: %s]"%(processes[0].arrival, processes[0].name, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                if(processes[0].arrival<1000):
+                    print("time %dms: Process %s arrived; added to ready queue [Q: %s]"%(processes[0].arrival, processes[0].name, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                 processes.pop(0)
             else:
                 break
@@ -68,13 +72,15 @@ def checkOtherTimes(oldP, processes, queue, current_queue, IBur, endWindow, elap
                 printed = 0
                 if(len(elapsedTimel)>1 and endWindow - elapsedTimel[0] == start):
                     current_queue.insert(0,elapsedTimel[1])
-                    print("time %dms: Process %s completed I/O; added to ready queue [Q: %s]"%(IBur[0].IOlst[IBur[0].tracker], IBur[0].name, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                    if(IBur[0].IOlst[IBur[0].tracker] < 1000):
+                        print("time %dms: Process %s completed I/O; added to ready queue [Q: %s]"%(IBur[0].IOlst[IBur[0].tracker], IBur[0].name, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                     current_queue.pop(0)
                     printed = 1
                 
                 
                 if(printed == 0):
-                    print("time %dms: Process %s completed I/O; added to ready queue [Q: %s]"%(IBur[0].IOlst[IBur[0].tracker], IBur[0].name, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                    if(IBur[0].IOlst[IBur[0].tracker] < 1000):
+                        print("time %dms: Process %s completed I/O; added to ready queue [Q: %s]"%(IBur[0].IOlst[IBur[0].tracker], IBur[0].name, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                 IBur[0].tracker+=1
                 oldP[IBur[0]].tracker+=1
                 IBur.pop(0)
@@ -87,9 +93,11 @@ def checkOtherTimes(oldP, processes, queue, current_queue, IBur, endWindow, elap
                                     current_queue.append(IBur[0].name)
                                     
                                     if(endWindow - elapsedTimel[0] != start):
-                                        print("time %dms: Process %s completed I/O; added to ready queue [Q: %s]"%(IBur[0].IOlst[IBur[0].tracker], IBur[0].name, " ".join(current_queue[1:]) if len(current_queue)!= 0 else "empty"))
+                                        if(IBur[0].IOlst[IBur[0].tracker] < 1000):
+                                            print("time %dms: Process %s completed I/O; added to ready queue [Q: %s]"%(IBur[0].IOlst[IBur[0].tracker], IBur[0].name, " ".join(current_queue[1:]) if len(current_queue)!= 0 else "empty"))
                                     else:
-                                        print("time %dms: Process %s completed I/O; added to ready queue [Q: %s]"%(IBur[0].IOlst[IBur[0].tracker], IBur[0].name, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                                        if(IBur[0].IOlst[IBur[0].tracker] < 1000):
+                                            print("time %dms: Process %s completed I/O; added to ready queue [Q: %s]"%(IBur[0].IOlst[IBur[0].tracker], IBur[0].name, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                                     IBur[0].tracker+=1
                                     oldP[IBur[0]].tracker+=1
                                     IBur.pop(0)
@@ -127,7 +135,8 @@ def RR(processes, t_cs, t_slice):
     finalT = 0
     
     #print("%s"%("time %dms: Process %s started using the CPU for remaining %dms of %dms burst [Q: %s]")%(endWindow, running_state.name, running_state.CPUlst[running_state.tracker], oldP[running_state].CPUlst[oldP[running_state].tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty")) if running_state.CPUlst[running_state.tracker] != oldP[running_state].CPUlst[oldP[running_state].tracker] else "%s"%("time %dms: Process %s started using the CPU for %dms burst [Q: %s]"%(endWindow, running_state.name, running_state.CPUlst[running_state.tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
-    print("time %dms: Simulator started for RR with time slice %dms [Q: %s]"%(elapsedTime,t_slice, "empty"))
+    if(elapsedTime < 1000):
+            print("time %dms: Simulator started for RR with time slice %dms [Q: %s]"%(elapsedTime,t_slice, "empty"))
     while(len(terminated)!=total):
         
         cTime[0] = elapsedTime
@@ -135,7 +144,8 @@ def RR(processes, t_cs, t_slice):
             queue.append(processes.pop(0))
             current_queue.append(queue[-1].name)
             elapsedTime+=queue[-1].arrival
-            print("time %dms: Process %s arrived; added to ready queue [Q: %s]"%( elapsedTime, queue[-1].name," ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+            if(elapsedTime < 1000):
+                print("time %dms: Process %s arrived; added to ready queue [Q: %s]"%( elapsedTime, queue[-1].name," ".join(current_queue) if len(current_queue)!= 0 else "empty"))
             endWindow = elapsedTime + start
             eTime[-1] = endWindow
         elif(elapsedTime>0):
@@ -148,8 +158,11 @@ def RR(processes, t_cs, t_slice):
                 current_queue.pop(0)
                 #print("time %dms: Process %s started using the CPU for %dms burst [Q: %s]"%(endWindow, running_state.name, running_state.CPUlst[running_state.tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                 #print(running_state.CPUlst[running_state.tracker], oldP[running_state].CPUlst[oldP[running_state].tracker])
-        
-                print("%s"%("time %dms: Process %s started using the CPU for remaining %dms of %dms burst [Q: %s]")%(endWindow, running_state.name, running_state.CPUlst[running_state.tracker], oldP[running_state].CPUlst[oldP[running_state].tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty")) if running_state.CPUlst[running_state.tracker] != oldP[running_state].CPUlst[oldP[running_state].tracker] else print("%s"%("time %dms: Process %s started using the CPU for %dms burst [Q: %s]"%(endWindow, running_state.name, running_state.CPUlst[running_state.tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty")))
+                if(endWindow < 1000):
+                    if running_state.CPUlst[running_state.tracker] != oldP[running_state].CPUlst[oldP[running_state].tracker] :
+                        print("%s"%("time %dms: Process %s started using the CPU for remaining %dms of %dms burst [Q: %s]")%(endWindow, running_state.name, running_state.CPUlst[running_state.tracker], oldP[running_state].CPUlst[oldP[running_state].tracker], " ".join(current_queue) if len(current_queue) > 0 else "empty")) 
+                    else:
+                        print("%s"%("time %dms: Process %s started using the CPU for %dms burst [Q: %s]"%(endWindow, running_state.name, running_state.CPUlst[running_state.tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty")))
                 elapsedTime = endWindow
                 endWindow += t_slice
                 
@@ -160,6 +173,7 @@ def RR(processes, t_cs, t_slice):
                         endWindow = elapsedTime + running_state.CPUlst[running_state.tracker]
                         running_state.CPUlst[running_state.tracker] -= t_slice
                         checkOtherTimes(oldP,processes, queue,current_queue,IBur,endWindow, cTime,running_state, start, eTime)
+                        
                         print("time %dms: Process %s terminated [Q: %s]"%(endWindow, running_state.name, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                         finalT = endWindow
                         endWindow += switch
@@ -169,8 +183,9 @@ def RR(processes, t_cs, t_slice):
                         terminated.append(running_state)
                         running_state = 0 
                     else:
-                        print("time %dms: Process %s completed a CPU burst; %d %s to go [Q: %s]"%(endWindow, running_state.name, len(running_state.CPUlst)-running_state.tracker-1, "bursts" if len(running_state.CPUlst)-running_state.tracker-1  > 1 else "burst", " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
-                        print("time %dms: Process %s switching out of CPU; will block on I/O until time %dms [Q: %s]"%(endWindow, running_state.name, endWindow + switch + running_state.IOlst[running_state.tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                        if(endWindow < 1000):
+                            print("time %dms: Process %s completed a CPU burst; %d %s to go [Q: %s]"%(endWindow, running_state.name, len(running_state.CPUlst)-running_state.tracker-1, "bursts" if len(running_state.CPUlst)-running_state.tracker-1  > 1 else "burst", " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                            print("time %dms: Process %s switching out of CPU; will block on I/O until time %dms [Q: %s]"%(endWindow, running_state.name, endWindow + switch + running_state.IOlst[running_state.tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                         running_state.IOlst[running_state.tracker] += endWindow+switch
                         IBur.append(running_state)
                         elapsedTime = endWindow
@@ -200,7 +215,12 @@ def RR(processes, t_cs, t_slice):
                         endWindow = cTime[0]+start  
                         current_queue.pop(0)
                         #print("time %dms: Process %s started using the CPU for %dms burst [Q: %s]"%(endWindow, running_state.name, running_state.CPUlst[running_state.tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
-                        print("%s"%("time %dms: Process %s started using the CPU for remaining %dms of %dms burst [Q: %s]")%(endWindow, running_state.name, running_state.CPUlst[running_state.tracker], oldP[running_state].CPUlst[oldP[running_state].tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty")) if running_state.CPUlst[running_state.tracker] != oldP[running_state].CPUlst[oldP[running_state].tracker] else print("%s"%("time %dms: Process %s started using the CPU for %dms burst [Q: %s]"%(endWindow, running_state.name, running_state.CPUlst[running_state.tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty")))
+                        if(endWindow < 1000):
+                            if (running_state.CPUlst[running_state.tracker] != oldP[running_state].CPUlst[oldP[running_state].tracker]) :
+                                print("%s"%("time %dms: Process %s started using the CPU for remaining %dms of %dms burst [Q: %s]")%(endWindow, running_state.name, running_state.CPUlst[running_state.tracker], oldP[running_state].CPUlst[oldP[running_state].tracker], " ".join(current_queue) if len(current_queue) > 0 else "empty")) 
+                            else:
+                                print("%s"%("time %dms: Process %s started using the CPU for %dms burst [Q: %s]"%(endWindow, running_state.name, running_state.CPUlst[running_state.tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty")))
+                        #print("%s"%("time %dms: Process %s started using the CPU for remaining %dms of %dms burst [Q: %s]")%(endWindow, running_state.name, running_state.CPUlst[running_state.tracker], oldP[running_state].CPUlst[oldP[running_state].tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty")) if running_state.CPUlst[running_state.tracker] != oldP[running_state].CPUlst[oldP[running_state].tracker] else print("%s"%("time %dms: Process %s started using the CPU for %dms burst [Q: %s]"%(endWindow, running_state.name, running_state.CPUlst[running_state.tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty")))
                         elapsedTime = endWindow
                         
                         if(endWindow+t_slice > endWindow+running_state.CPUlst[running_state.tracker]):
@@ -213,6 +233,7 @@ def RR(processes, t_cs, t_slice):
                                 
                                 running_state.CPUlst[running_state.tracker] = 0
                                 checkOtherTimes(oldP,processes, queue,current_queue,IBur,endWindow, cTime,running_state, start, eTime)
+                                
                                 print("time %dms: Process %s terminated [Q: %s]"%(endWindow, running_state.name, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                                 finalT = endWindow
                                 endWindow += switch
@@ -222,8 +243,9 @@ def RR(processes, t_cs, t_slice):
                                 terminated.append(running_state)
                                 running_state = 0 
                             else:
-                                print("time %dms: Process %s completed a CPU burst; %d %s to go [Q: %s]"%(endWindow, running_state.name, len(running_state.CPUlst)-running_state.tracker-1, "bursts" if len(running_state.CPUlst)-running_state.tracker-1  > 1 else "burst", " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
-                                print("time %dms: Process %s switching out of CPU; will block on I/O until time %dms [Q: %s]"%(endWindow, running_state.name, endWindow + switch + running_state.IOlst[running_state.tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                                if(endWindow < 1000):
+                                    print("time %dms: Process %s completed a CPU burst; %d %s to go [Q: %s]"%(endWindow, running_state.name, len(running_state.CPUlst)-running_state.tracker-1, "bursts" if len(running_state.CPUlst)-running_state.tracker-1  > 1 else "burst", " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                                    print("time %dms: Process %s switching out of CPU; will block on I/O until time %dms [Q: %s]"%(endWindow, running_state.name, endWindow + switch + running_state.IOlst[running_state.tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
 
                                 running_state.IOlst[running_state.tracker] += endWindow + switch
                                 IBur.append(running_state)
@@ -247,7 +269,8 @@ def RR(processes, t_cs, t_slice):
                     if(len(queue) == 0):
                         running_state.CPUlst[running_state.tracker] -= t_slice
                         if(running_state.CPUlst[running_state.tracker] != 0):
-                            print("time %dms: Time slice expired; no preemption because ready queue is empty [Q: empty]"%(endWindow))
+                            if(endWindow < 1000):
+                                print("time %dms: Time slice expired; no preemption because ready queue is empty [Q: empty]"%(endWindow))
                         elapsedTime = endWindow
                         endWindow +=  t_slice
 
@@ -255,8 +278,9 @@ def RR(processes, t_cs, t_slice):
                             endWindow = elapsedTime + running_state.CPUlst[running_state.tracker]
                             running_state.CPUlst[running_state.tracker] = 0
                             checkOtherTimes(oldP,processes, queue,current_queue,IBur,endWindow, cTime,running_state, start, eTime)
-                            print("time %dms: Process %s completed a CPU burst; %d %s to go [Q: %s]"%(endWindow, running_state.name, len(running_state.CPUlst)-running_state.tracker-1, "bursts" if len(running_state.CPUlst)-running_state.tracker-1  > 1 else "burst", " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
-                            print("time %dms: Process %s switching out of CPU; will block on I/O until time %dms [Q: %s]"%(endWindow, running_state.name, endWindow + switch + running_state.IOlst[running_state.tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                            if(endWindow < 1000):
+                                print("time %dms: Process %s completed a CPU burst; %d %s to go [Q: %s]"%(endWindow, running_state.name, len(running_state.CPUlst)-running_state.tracker-1, "bursts" if len(running_state.CPUlst)-running_state.tracker-1  > 1 else "burst", " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                                print("time %dms: Process %s switching out of CPU; will block on I/O until time %dms [Q: %s]"%(endWindow, running_state.name, endWindow + switch + running_state.IOlst[running_state.tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                             running_state.IOlst[running_state.tracker] += endWindow + switch
                             IBur.append(running_state)
                             elapsedTime = endWindow
@@ -269,7 +293,8 @@ def RR(processes, t_cs, t_slice):
                     elif(len(queue)>0):
                         running_state.CPUlst[running_state.tracker] -= t_slice
                         if(running_state.CPUlst[running_state.tracker] != 0):
-                            print("time %dms: Time slice expired; process %s preempted with %dms remaining [Q: %s]"%(endWindow, running_state.name, running_state.CPUlst[running_state.tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                            if(endWindow < 1000):
+                                print("time %dms: Time slice expired; process %s preempted with %dms remaining [Q: %s]"%(endWindow, running_state.name, running_state.CPUlst[running_state.tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                             elapsedTime = endWindow
                             endWindow += switch
                             checkOtherTimes(oldP,processes, queue,current_queue,IBur,endWindow, cTime,running_state, start, eTime)
@@ -285,8 +310,9 @@ def RR(processes, t_cs, t_slice):
                             cTime.pop()
                             
                         elif(running_state.CPUlst[running_state.tracker] == 0):
-                            print("time %dms: Process %s completed a CPU burst; %d %s to go [Q: %s]"%(endWindow, running_state.name, len(running_state.CPUlst)-running_state.tracker-1, "bursts" if len(running_state.CPUlst)-running_state.tracker-1  > 1 else "burst", " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
-                            print("time %dms: Process %s switching out of CPU; will block on I/O until time %dms [Q: %s]"%(endWindow, running_state.name, endWindow + switch + running_state.IOlst[running_state.tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                            if(endWindow < 1000):
+                                print("time %dms: Process %s completed a CPU burst; %d %s to go [Q: %s]"%(endWindow, running_state.name, len(running_state.CPUlst)-running_state.tracker-1, "bursts" if len(running_state.CPUlst)-running_state.tracker-1  > 1 else "burst", " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                                print("time %dms: Process %s switching out of CPU; will block on I/O until time %dms [Q: %s]"%(endWindow, running_state.name, endWindow + switch + running_state.IOlst[running_state.tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                             running_state.IOlst[running_state.tracker] += endWindow + switch
                             IBur.append(running_state)
                             elapsedTime = endWindow
@@ -302,6 +328,7 @@ def RR(processes, t_cs, t_slice):
                             endWindow = elapsedTime + running_state.CPUlst[running_state.tracker]
                             running_state.CPUlst[running_state.tracker] -= t_slice
                             checkOtherTimes(oldP,processes, queue,current_queue,IBur,endWindow, cTime,running_state, start, eTime)
+                            
                             print("time %dms: Process %s terminated [Q: %s]"%(endWindow, running_state.name, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                             finalT = endWindow
                             terminated.append(running_state)
