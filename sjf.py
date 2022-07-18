@@ -3,17 +3,22 @@ import math
 
 ' SHORTEST JOB FIRST '
 
-def sjf(processes, alpha):
+def sjf(processes, alpha, filename):
+    # algorithm variables
     next_p = ''
-    current_p = ''
-    context_switches = 0
     queue = [] # the entire process
     io_process = {}
-    # terminated = []
     running = [False, '', '', '']
     processes.sort(key = lambda x : x.numCPUBursts)
     arrival_times = {}
     process_stuff = {}
+
+    # stat variables
+    context_switches = 0
+    wait_time = 0
+    useful_time = 0
+    cpu_burst_time = [0,0]
+
     for i in range(len(processes)):
         process_stuff[processes[i].name] = processes[i]
     for i in range(len(processes)):
@@ -22,6 +27,9 @@ def sjf(processes, alpha):
     elapsedTime = 0
     print("time 0ms: Simulator started for SJF [Q: empty]")
     while True:
+        old_queue = queue
+
+        current_p = ''
         if (len(process_stuff.keys())==0):
             print("time {}ms: Simulator ended for SJF [Q: empty]".format(elapsedTime+1))
             break
@@ -31,15 +39,20 @@ def sjf(processes, alpha):
             current_queue.append(arrival_times[elapsedTime])
             queue.sort(key = lambda x : x.numCPUBursts)
             current_queue = sorted(current_queue)
-            print("time {}ms: Process {} (tau {}ms) arrived; added to ready queue [Q: {}]".format(elapsedTime, arrival_times[elapsedTime], process_stuff[arrival_times[elapsedTime]].tau, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+            if (elapsedTime <= 1000):
+                print("time {}ms: Process {} (tau {}ms) arrived; added to ready queue [Q: {}]".format(elapsedTime, arrival_times[elapsedTime], process_stuff[arrival_times[elapsedTime]].tau, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
         if (running[0]):
             if (running[1]==elapsedTime):
             # CPU burst started
                 current_p = running[3]
+                cpu_burst_time[0] += running[2]-running[1]
+                cpu_burst_time[1] += 1
+                useful_time += running[2]-running[1]
                 if (elapsedTime <= 1000):
                     print("time {}ms: Process {} (tau {}ms) started using the CPU for {}ms burst [Q: {}]".format(elapsedTime, running[3], process_stuff[current_p].tau, (running[2]-running[1]), " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
             elif (running[2]==elapsedTime): 
             # CPU burst finished
+                current_p = running[3]
                 if (len(process_stuff[running[3]].CPUlst)==0): # process completely finished, no more CPU bursts
                     print("time {}ms: Process {} terminated [Q: {}]".format(elapsedTime, running[3], " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                     del process_stuff[running[3]]
@@ -74,8 +87,13 @@ def sjf(processes, alpha):
         
         if (not running[0] and len(queue)>0):
             next_p = queue[0]
+            name = queue[0].name
             queue.pop(0)
-            current_queue.pop(0)
+            num = 0
+            for i in range(len(current_queue)):
+                if (name == current_queue[i]):
+                    num = i
+            current_queue.pop(num)
             running[0] = True
             running[1] = elapsedTime + 2
             running[2] = elapsedTime + (process_stuff[next_p.name]).CPUlst[0] + 2 
@@ -83,5 +101,33 @@ def sjf(processes, alpha):
             process_stuff[next_p.name].numCPUBursts-=1
             process_stuff[next_p.name].CPUlst.pop(0)
             context_switches+=1
+
+            if (current_p != '' and next_p != current_p):
+                running[1]+=2
+                running[2]+=2
+    
+        for p in set(old_queue).intersection(queue):
+            wait_time+=1
+
         elapsedTime+=1
        # print(elapsedTime)
+
+    average_CPU_burst = cpu_burst_time[0]/cpu_burst_time[1]
+   # print(average_CPU_burst)
+    average_wait_time = wait_time / cpu_burst_time[1]
+    
+    average_turnaround_time = average_CPU_burst + average_wait_time + 4
+   # print(average_turnaround_time)
+    utilization = round((100 * useful_time)/(elapsedTime +1),3)
+
+    f = open(filename, "a")
+
+    f.write("Algorithm SJF\n")
+    f.write("-- average CPU burst time: {:.3f} ms\n".format(average_CPU_burst))
+    f.write("-- average wait time: {:.3f} ms\n".format(average_wait_time))
+    f.write("-- average turnaround time: {:.3f} ms\n".format(average_turnaround_time))
+    f.write("-- total number of context switches: {}\n".format(context_switches))
+    f.write("-- total number of preemptions: 0\n")
+    f.write("-- CPU utilization: {:.3f}%\n".format(utilization))
+
+    f.close()    
