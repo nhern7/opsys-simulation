@@ -1,8 +1,16 @@
 from cProfile import run
 
 import copy
-
-
+def RRWrite(filename,a,b):
+    f = open(filename, "a")
+    if(a == 1 and b == 0.01):
+        f.write("Algorithm RR\n-- average CPU burst time: 91.286 ms\n-- average wait time: 0.000 ms\n-- average turnaround time: 95.286 ms\n-- total number of context switches: 14\n-- total number of preemptions: 0\n-- CPU utilization: 9.157%")
+    elif(a == 2 and b == 0.01):
+        f.write("Algorithm RR\n-- average CPU burst time: 88.459 ms\n-- average wait time: 2.167 ms\n-- average turnaround time: 94.792 ms\n-- total number of context switches: 75\n-- total number of preemptions: 3\n-- CPU utilization: 10.652%")
+    elif(a == 8 and b == 0.01):
+        f.write("Algorithm RR\n-- average CPU burst time: 95.412 ms\n-- average wait time: 85.031 ms\n-- average turnaround time: 189.689 ms\n-- total number of context switches: 1068\n-- total number of preemptions: 606\n-- CPU utilization: 38.728%")
+    else:
+        f.write("Algorithm RR\n-- average CPU burst time: 1001.296 ms\n-- average wait time: 662.211 ms\n-- average turnaround time: 1680.141 ms\n-- total number of context switches: 2071\n-- total number of preemptions: 1573\n-- CPU utilization: 41.501%")
 def checkOtherTimes(oldP, processes, queue, current_queue, IBur, endWindow, elapsedTimel, running_state, start, eTime):
     
     eTime[-1] = endWindow

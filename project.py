@@ -24,7 +24,11 @@ if __name__ == "__main__":
         alpha = float(sys.argv[6])     #represents alpha used during exponential averaging 
         t_slice = int(sys.argv[7])   #timeslice used in RR
         
-
+        1 19 0.01 4096 4 0.5 64
+        2 19 0.01 4096 4 0.5 64
+        8 19 0.01 4096 4 0.75 32
+        8 101 0.001 16384 4 0.5 128
+        
         RNG = Rand48()
         RNG.srand(seed)
         process_list = []
