@@ -7,7 +7,7 @@ import math
 import srt
 from process import Process, Rand48
 from FCFS import FCFS, FCFSwrite
-import sjf 
+import sjf1 
 import copy
 from RR import RR
 
@@ -47,7 +47,7 @@ if __name__ == "__main__":
         lst = FCFS(process_list, t_cs)  
         FCFSwrite("simout.txt",lst)   
         print()
-        sjf.sjf(process_list_temp, alpha, "simout.txt")
+        sjf1.sjf(process_list_temp, alpha, "simout.txt")
         print()
         srt.algorithm(process_list, alpha, t_cs)
         srt.outputWriting("simout.txt")
