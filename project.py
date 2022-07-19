@@ -15,11 +15,15 @@ if __name__ == "__main__":
     
     if len(sys.argv) != 8:  #must be given exactly 8 args, else theres a problem...
         sys.stderr.write("ERROR: improper arguments provided")
+        f = open("simout.txt", "a")
+        f.close()           
     else:
         try:
             n = int(sys.argv[1])     #number of processes
             if n > 26:
                 sys.stderr.write("ERROR: improper arguments provided")  
+                f = open("simout.txt", "a")
+                f.close()                   
             else:
                 seed = int(sys.argv[2])  #seed for pseudo-random number generation
                 lamb = float(sys.argv[3])  #represents time between arrivals
@@ -77,3 +81,5 @@ if __name__ == "__main__":
                             
         except:
             sys.stderr.write("ERROR: improper arguments provided")
+            f = open("simout.txt", "a")
+            f.close()   
