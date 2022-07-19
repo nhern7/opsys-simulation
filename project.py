@@ -13,18 +13,19 @@ from RR import RR
 
 if __name__ == "__main__":
     
-    if len(sys.argv) != 8:  #must be given exactly 8 args, else theres a problem...
-        sys.stderr.write("ERROR: improper arguments provided")
-    else:
-        try:
-            n = int(sys.argv[1])     #number of processes
-            seed = int(sys.argv[2])  #seed for pseudo-random number generation
-            lamb = float(sys.argv[3])  #represents time between arrivals
-            upper_bound = int(sys.argv[4])   #highest pseudo-random number allowed    
-            t_cs = int(sys.argv[5])  #time it takes for a context switch
-            alpha = float(sys.argv[6])     #represents alpha used during exponential averaging 
-            t_slice = int(sys.argv[7])   #timeslice used in RR
-            
+    #if len(sys.argv) != 8:  #must be given exactly 8 args, else theres a problem...
+    #    sys.stderr.write("ERROR: improper arguments provided")
+    #else:
+            try:
+                n = int(sys.argv[1])     #number of processes
+                seed = int(sys.argv[2])  #seed for pseudo-random number generation
+                lamb = float(sys.argv[3])  #represents time between arrivals
+                upper_bound = int(sys.argv[4])   #highest pseudo-random number allowed    
+                t_cs = int(sys.argv[5])  #time it takes for a context switch
+                alpha = float(sys.argv[6])     #represents alpha used during exponential averaging 
+                t_slice = int(sys.argv[7])   #timeslice used in RR
+            except ValueError:
+                exit()
 
             RNG = Rand48()
             RNG.srand(seed)
@@ -75,5 +76,5 @@ if __name__ == "__main__":
             print()
             RR(process_list_temp,t_cs,t_slice)
                         
-        except:
-            sys.stderr.write("ERROR: improper arguments provided")
+      
+            sys.stderr.write("ERROR: improper arguments provided\n")
