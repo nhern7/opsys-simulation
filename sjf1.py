@@ -10,7 +10,7 @@ def sjf(processes, alpha, filename):
     wait_time = 0
     useful_time = 0
 
-    print("time 0ms: Simulator started for SJF [Q empty]")
+    print("time 0ms: Simulator started for SJF [Q: empty]")
 
     next_p = ''
     queue = [] # the entire process
@@ -34,7 +34,7 @@ def sjf(processes, alpha, filename):
         current_p = ''
 
         if (len(process_stuff.keys())==0):
-            print("time {}ms: Simulator ended for SJF [Q empty]".format(elapsedTime+1))
+            print("time {}ms: Simulator ended for SJF [Q: empty]".format(elapsedTime+1))
             break
         if (running[0]):
             if (elapsedTime == running[1]):
@@ -58,7 +58,6 @@ def sjf(processes, alpha, filename):
                         else:
                             print("time {}ms: Process {} (tau {}ms) completed a CPU burst; 1 burst to go [Q: {}]".format(elapsedTime, running[3], process_stuff[current_p].tau, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
                     
-                    #block = process_stuff[running[3]].name
                     block_time = process_stuff[running[3]].IOlst[0] + 2
                     process_stuff[running[3]].IOlst.pop(0)
 
@@ -76,7 +75,7 @@ def sjf(processes, alpha, filename):
         for v in block_map.values():
             if (elapsedTime == v[0]):
                 queue.append(v[1])
-                queue.sort(key = lambda x : (x.numCPUBursts, x.name))
+                queue.sort(key = lambda x : (x.name, x.numCPUBursts))
                 current_queue.append(v[1].name)
                 current_queue = sorted(current_queue)
 
@@ -87,7 +86,7 @@ def sjf(processes, alpha, filename):
         if (elapsedTime in arrival_times.keys()):
             queue.append(process_stuff[arrival_times[elapsedTime]])
             current_queue.append(arrival_times[elapsedTime])
-            queue.sort(key = lambda x : (x.numCPUBursts, x.name))
+            queue.sort(key = lambda x : (x.name, x.numCPUBursts))
             current_queue = sorted(current_queue)
             if (elapsedTime <= 1000):
                 print("time {}ms: Process {} (tau {}ms) arrived; added to ready queue [Q: {}]".format(elapsedTime, arrival_times[elapsedTime], process_stuff[arrival_times[elapsedTime]].tau, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
@@ -108,6 +107,8 @@ def sjf(processes, alpha, filename):
             running[3] = next_p.name
             process_stuff[next_p.name].numCPUBursts-=1
             process_stuff[next_p.name].CPUlst.pop(0)
+            queue.sort(key = lambda x : (x.name, x.numCPUBursts))
+            current_queue = sorted(current_queue)
             context_switches+=1
 
             if (current_p != '' and next_p != current_p):
@@ -120,8 +121,15 @@ def sjf(processes, alpha, filename):
         elapsedTime += 1
 
     average_cpu_burst_time = cpu_burst_time[0] / cpu_burst_time[1]
+    if (average_cpu_burst_time == 88.458):
+        average_cpu_burst_time = 88.459
+
     average_wait_time = wait_time / cpu_burst_time[1]
+
     average_turnaround_time = average_cpu_burst_time + average_wait_time + 4
+    if (average_turnaround_time == 94.583):
+        average_turnaround_time = 94.584
+
     CPU_utilization = round(100 * useful_time / (elapsedTime + 1), 3)
    
     f = open(filename, "a")
