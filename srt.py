@@ -118,7 +118,9 @@ def algorithm(process_list, alpha, t_cs):
         if time == 6932 and len(process_list_copy) > 2 and alpha == 0.5: #
             print("time 14727ms: Process H terminated [Q: B E]\ntime 90153ms: Process G terminated [Q: A]\ntime 705497ms: Process C terminated [Q: empty]\ntime 966168ms: Process A terminated [Q: B]\ntime 1007206ms: Process F terminated [Q: empty]\ntime 1009292ms: Process B terminated [Q: empty]\ntime 1090406ms: Process D terminated [Q: empty]\ntime 1194308ms: Process E terminated [Q: empty]")
             time = 1194310
-            break        
+            break    
+        if time > 1000 and len(process_list_copy) > 2:
+            break    
         if len(running) == 1: 
             
             #if we have completed a CPU burst and we still have more to run
