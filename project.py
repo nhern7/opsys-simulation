@@ -7,7 +7,7 @@ import math
 import srt
 from process import Process, Rand48
 from FCFS import FCFS, FCFSwrite
-import sjf 
+import sjf1 
 import copy
 from RR import RR
 

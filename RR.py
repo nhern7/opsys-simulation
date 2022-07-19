@@ -1,16 +1,7 @@
 from cProfile import run
-from curses import endwin
-from optparse import check_builtin
-import sys, os
+
 import copy
 
-# Disable
-def blockPrint():
-    sys.stdout = open(os.devnull, 'w')
-
-# Restore
-def enablePrint():
-    sys.stdout = sys.__stdout__
 
 def checkOtherTimes(oldP, processes, queue, current_queue, IBur, endWindow, elapsedTimel, running_state, start, eTime):
     
