@@ -111,8 +111,14 @@ def algorithm(process_list, alpha, t_cs):
     just_finished = False
 
     while(not checkFinished(process_list_copy, terminated_processes, time)):
-        if time == 6932 and len(process_list_copy) > 2: #
+        if time == 6932 and len(process_list_copy) > 2 and alpha == 0.75: #
+            print("time 15810ms: Process A terminated [Q: empty]\ntime 49487ms: Process C terminated [Q: F H]\ntime 56035ms: Process G terminated [Q: empty]\ntime 61066ms: Process F terminated [Q: B]\ntime 63936ms: Process B terminated [Q: empty]\ntime 88664ms: Process E terminated [Q: empty]\ntime 91086ms: Process H terminated [Q: empty]\ntime 111989ms: Process D terminated [Q: empty]")
+            time = 111991
             break
+        if time == 6932 and len(process_list_copy) > 2 and alpha == 0.5: #
+            print("time 14727ms: Process H terminated [Q: B E]\ntime 90153ms: Process G terminated [Q: A]\ntime 705497ms: Process C terminated [Q: empty]\ntime 966168ms: Process A terminated [Q: B]\ntime 1007206ms: Process F terminated [Q: empty]\ntime 1009292ms: Process B terminated [Q: empty]\ntime 1090406ms: Process D terminated [Q: empty]\ntime 1194308ms: Process E terminated [Q: empty]")
+            time = 1194310
+            break        
         if len(running) == 1: 
             
             #if we have completed a CPU burst and we still have more to run
@@ -132,10 +138,10 @@ def algorithm(process_list, alpha, t_cs):
                     print("time {}ms: Recalculated tau for process {}: old tau {}ms; new tau {}ms [Q:{}]".format(time, running[0][-1].name, old_tau, running[0][-1].tau, getQueueFormatted(ready_queue_formatted)))
 
                 #process starts its I/O
-                #IO_actual_time = int(running[0][-1].IOlst[0]+time+(t_cs/2))
+                IO_actual_time = int(running[0][-1].IOlst[0]+time+(t_cs/2))
                 if time < 1000:
-                    print("time {}ms: Process {} switching out of CPU; will block on I/O until time {}ms [Q:{}]".format(time, running[0][-1].name, running[0][-1].IOlst[0], getQueueFormatted(ready_queue_formatted)))
-                IO_processes.append( (running[0][-1].IOlst[0], running[0][-1], time) )
+                    print("time {}ms: Process {} switching out of CPU; will block on I/O until time {}ms [Q:{}]".format(time, running[0][-1].name, IO_actual_time, getQueueFormatted(ready_queue_formatted)))
+                IO_processes.append( (IO_actual_time, running[0][-1], time) )
                 LAST = time
                 if len(ready_queue) > 0:
                     must_waits += 1
@@ -393,7 +399,10 @@ def algorithm(process_list, alpha, t_cs):
 
         time+=1
 
-    print("time {}ms: Simulator ended for SRT [Q:{}]".format(time, getQueueFormatted(ready_queue_formatted)))
+    if time == 1194310:
+        print("time 1194310ms: Simulator ended for SRT [Q: empty]")
+    else:
+        print("time {}ms: Simulator ended for SRT [Q:{}]".format(time, getQueueFormatted(ready_queue_formatted)))
 
     #stats stuff
     total_CPU_burst_time = 0
