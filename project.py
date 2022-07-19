@@ -38,7 +38,10 @@ if __name__ == "__main__":
                 process_list_temp.append(copy.deepcopy(process_list[i]) )  
                         
             for i in process_list:
-                print("Process {}: arrival time {}ms; tau {}ms; {} CPU bursts:".format(i.name, i.arrival, i.tau, i.numCPUBursts))
+                if (i.numCPUBursts == 1):
+                    print("Process {}: arrival time {}ms; tau {}ms; {} CPU burst:".format(i.name, i.arrival, i.tau, i.numCPUBursts))
+                else:
+                    print("Process {}: arrival time {}ms; tau {}ms; {} CPU bursts:".format(i.name, i.arrival, i.tau, i.numCPUBursts))
                 for j in range(i.numCPUBursts):
                     if (j==i.numCPUBursts-1):
                         print("--> CPU burst {}ms".format(i.CPUlst[j]))
