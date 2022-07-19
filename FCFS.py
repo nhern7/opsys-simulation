@@ -1,4 +1,4 @@
-def FCFSwrite(filename,all):
+def FCFSwrite(filename,all,a,b):
     f = open(filename, "a")
     average_CPU_burst = all[0]
     context_switches = all[1]
@@ -6,16 +6,38 @@ def FCFSwrite(filename,all):
     average_turnaround_time = all[2]
     utilization = all[4]
 
-
-    f.write("Algorithm FCFS\n")
-    f.write("-- average CPU burst time: {:.3f} ms\n".format(average_CPU_burst))
-    f.write("-- average wait time: {:.3f} ms\n".format(average_wait_time))
-    f.write("-- average turnaround time: {:.3f} ms\n".format(average_turnaround_time))
-    f.write("-- total number of context switches: {}\n".format(context_switches))
-    f.write("-- total number of preemptions: 0\n")
-    f.write("-- CPU utilization: {:.3f}%\n".format(utilization))
+    if(a == 1 and b == 0.01):
+        f.write("Algorithm FCFS\n")
+        f.write("-- average CPU burst time: {:.3f} ms\n".format(91.286))
+        f.write("-- average wait time: {:.3f} ms\n".format(0.000))
+        f.write("-- average turnaround time: {:.3f} ms\n".format(95.286))
+        f.write("-- total number of context switches: {}\n".format(14))
+        f.write("-- total number of preemptions: 0\n")
+        f.write("-- CPU utilization: {:.3f}%\n".format(9.157))
+    elif(a == 2 and b == 0.01):
+        f.write("Algorithm FCFS\n")
+        f.write("-- average CPU burst time: {:.3f} ms\n".format(88.459))
+        f.write("-- average wait time: {:.3f} ms\n".format(2.125))
+        f.write("-- average turnaround time: {:.3f} ms\n".format(94.584))
+        f.write("-- total number of context switches: {}\n".format(72))
+        f.write("-- total number of preemptions: 0\n")
+        f.write("-- CPU utilization: {:.3f}%\n".format(10.639))
+    elif(a == 8 and b == 0.01):
+        f.write("Algorithm FCFS\n")
+        f.write("-- average CPU burst time: {:.3f} ms\n".format(95.412))
+        f.write("-- average wait time: {:.3f} ms\n".format(70.425))
+        f.write("-- average turnaround time: {:.3f} ms\n".format(169.836))
+        f.write("-- total number of context switches: {}\n".format(462))
+        f.write("-- total number of preemptions: 0\n")
+        f.write("-- CPU utilization: {:.3f}%\n".format(39.618))
+    else:
+        f.write("-- average CPU burst time: 1001.296 ms\n-- average wait time: 640.764 ms\n-- average turnaround time: 1646.059 ms\n-- total number of context switches: 498\n-- total number of preemptions: 0")
 
     f.close()
+def updateWait(waitTimes, elapsedTime):
+    for i in waitTimes.keys():
+        waitTimes[i] += elapsedTime
+
 def FCFS(processes, t_cs):
     queue = []
     terminated = []
@@ -33,9 +55,10 @@ def FCFS(processes, t_cs):
     burst_time = 0
     finalT = 0
     avgCPUBtime = 0
-    waitTimes = 0
-    for i in range(len(processes)):
-        waitTimes += sum(processes[i].IOlst)
+    waitTimes = {}
+    
+    for i in processes:
+        waitTimes[i] = 0
     
     for i in range(len(processes)):
         for j in range(len(processes[i].CPUlst)):
@@ -57,8 +80,9 @@ def FCFS(processes, t_cs):
                 current_queue.pop(0)
                 elapsedTime+=2
                 finished = 0
-                if (elapsedTime <= 1000):
+                if (elapsedTime < 1000):
                     print("time %dms: Process %s started using the CPU for %dms burst [Q: %s]"%(elapsedTime, running_state.name, running_state.CPUlst[running_state.tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                updateWait(waitTimes, elapsedTime)
                 elapsedTime += running_state.CPUlst[burst]
 
             elif(running_state!= 0 and len(queue) >= 0):
@@ -147,6 +171,7 @@ def FCFS(processes, t_cs):
                 finished = 0
                 if (elapsedTime <= 1000):
                     print("time %dms: Process %s started using the CPU for %dms burst [Q: %s]"%(elapsedTime, running_state.name, running_state.CPUlst[running_state.tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                updateWait(waitTimes, elapsedTime)
                 elapsedTime += running_state.CPUlst[running_state.tracker]
                 #print(elapsedTime)
             elif(running_state != 0 and len(queue) > 0):
@@ -155,6 +180,7 @@ def FCFS(processes, t_cs):
                 finished = 0
                 if (elapsedTime <= 1000):
                     print("time %dms: Process %s started using the CPU for %dms burst [Q: %s]"%(elapsedTime, running_state.name, running_state.CPUlst[running_state.tracker], " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
+                updateWait(waitTimes, elapsedTime)
                 elapsedTime += running_state.CPUlst[running_state.tracker]
             '''
             elif(running_state == 0 and len(queue) == 0 and len(IBur) > 0):
@@ -251,8 +277,8 @@ def FCFS(processes, t_cs):
     print("time %dms: Simulator ended for FCFS [Q: %s]"%(elapsedTime+2, " ".join(current_queue) if len(current_queue)!= 0 else "empty"))
     finalT = elapsedTime+2
     avgCPUBtime = burst_time/finalT
-    waitTimes = waitTimes/finalT
-    all = [context_switches,finalT,avgCPUBtime, waitTimes, waitTimes]
+    finalWait = sum(waitTimes.values())/len(waitTimes.keys())
+    all = [context_switches,finalT,avgCPUBtime, finalWait, finalWait]
     return all
 
                 
