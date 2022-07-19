@@ -53,7 +53,7 @@ if __name__ == "__main__":
             for i in range(n):
                 process_list_temp.append(copy.deepcopy(process_list[i]) )  
                     
-            sjf.sjf(process_list_temp, alpha, "simout.txt")
+            sjf1.sjf(process_list_temp, alpha, "simout.txt")
             print()
 
             process_list_temp = []
